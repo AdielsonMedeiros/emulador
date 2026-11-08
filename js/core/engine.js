@@ -19,7 +19,10 @@ export class EmulatorEngine {
 
     unlockAudioContext();
 
-    window.EJS_player = "#game-frame";
+    const playerId = this.targetElement.id ? `#${this.targetElement.id}` : "#game-frame";
+    this.targetElement.innerHTML = `<div id="game-instance" style="width:100%; height:100%;"></div>`;
+    window.EJS_player = "#game-instance";
+
     window.EJS_core = game.core;
     window.EJS_gameName = game.title;
     window.EJS_gameUrl = game.rom;
@@ -47,9 +50,14 @@ export class EmulatorEngine {
       delete window.EJS_VirtualGamepadSettings;
     }
 
+    const oldScript = document.getElementById("emulatorjs-loader");
+    if (oldScript) oldScript.remove();
+
     const script = document.createElement("script");
+    script.id = "emulatorjs-loader";
     script.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
     script.async = true;
     document.body.appendChild(script);
   }
 }
+

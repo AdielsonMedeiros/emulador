@@ -17,3 +17,4 @@ export class Router {
     window.addEventListener("popstate", callback);
   }
 }
+

@@ -23,7 +23,10 @@ class App {
   async init() {
     try {
       this.games = await this.gameService.fetchGames();
-      this.catalog = new CatalogModule(this.games, (game) => this.showGameCard(game));
+      this.catalog = new CatalogModule(this.games, (game) => {
+        Router.navigateToGame(game.id);
+        this.showGameCard(game);
+      });
 
       this.handleRoute();
       Router.onRoute(() => this.handleRoute());
@@ -93,3 +96,4 @@ class App {
 document.addEventListener("DOMContentLoaded", () => {
   new App();
 });
+

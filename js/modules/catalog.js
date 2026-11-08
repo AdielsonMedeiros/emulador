@@ -1,5 +1,3 @@
-import { Router } from "./router.js";
-
 export class CatalogModule {
   constructor(games, onSelectGame) {
     this.games = games;
@@ -107,7 +105,6 @@ export class CatalogModule {
       item.href = `?game=${encodeURIComponent(game.id)}`;
       item.onclick = (e) => {
         e.preventDefault();
-        Router.navigateToGame(game.id);
         this.onSelectGame(game);
       };
 
@@ -122,3 +119,4 @@ export class CatalogModule {
     });
   }
 }
+

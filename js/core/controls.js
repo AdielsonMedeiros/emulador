@@ -32,3 +32,4 @@ export function getAnalogGamepadSettings(core) {
     { type: "button", text: "R", id: "r", location: "right", right: 3, top: -90, bold: true, block: true, input_value: 11 }
   ];
 }
+

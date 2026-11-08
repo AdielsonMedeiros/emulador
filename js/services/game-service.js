@@ -8,3 +8,4 @@ export class GameService {
     return data.games || [];
   }
 }
+
