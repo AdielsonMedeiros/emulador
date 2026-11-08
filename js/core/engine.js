@@ -1,6 +1,6 @@
-import { unlockAudioContext } from "./audio.js";
-import { resolveAssetUrl } from "./utils.js";
-import { getVirtualGamepadSettings } from "./gamepad-config.js";
+import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=34";
+import { resolveAssetUrl } from "./utils.js?v=34";
+import { getVirtualGamepadSettings } from "./gamepad-config.js?v=34";
 
 export function isAllowedInteractionTarget(target) {
   if (!target || typeof target.closest !== "function") return false;
@@ -19,6 +19,8 @@ export class EmulatorEngine {
     this.targetElement = targetElement;
     this.currentGame = null;
     this.onExitCallback = null;
+
+    registerAudioUnlockListeners();
 
     if (this.viewportElement) {
       this.viewportElement.addEventListener(
@@ -84,6 +86,7 @@ export class EmulatorEngine {
       window.EJS_VirtualGamepadSettings = getVirtualGamepadSettings(game.core);
 
       window.EJS_threads = false;
+      window.EJS_cacheLimit = 40 * 1024 * 1024;
       if (game.core === "n64") {
         window.EJS_webgl = true;
         window.EJS_controlScheme = "n64";
@@ -92,11 +95,7 @@ export class EmulatorEngine {
         window.EJS_webgl = false;
       }
 
-      if (game.core === "fbneo") {
-        window.EJS_biosUrl = resolveAssetUrl("roms/neogeo.zip");
-      } else {
-        delete window.EJS_biosUrl;
-      }
+      delete window.EJS_biosUrl;
 
       window.EJS_alignAudio = false;
       window.EJS_audioWorklet = false;
@@ -106,6 +105,10 @@ export class EmulatorEngine {
       window.EJS_ready = () => {
         if (window.EJS_emulator) {
           window.EJS_emulator.on("exit", () => {
+            if (window.EJS_emulator && window.EJS_emulator.failedToStart) {
+              console.warn("Emulador reportou falha ao iniciar; mantendo viewport para diagnostico.");
+              return;
+            }
             this.stop();
           });
 
@@ -113,6 +116,7 @@ export class EmulatorEngine {
             if (window.EJS_emulator.menu && typeof window.EJS_emulator.menu.close === "function") {
               window.EJS_emulator.menu.close();
             }
+            resumeEmulatorAudio();
           });
 
           // Desativa o listener de mousemove da barra de menu no ambiente touch
@@ -258,7 +262,6 @@ export class EmulatorEngine {
 
     delete window.EJS_emulator;
     delete window.EJS_VirtualGamepadSettings;
-    delete window.EJS_biosUrl;
 
     if (this.layoutObserver) {
       this.layoutObserver.disconnect();

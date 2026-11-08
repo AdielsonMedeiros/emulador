@@ -1,9 +1,9 @@
-import { GameService } from "./services/game-service.js?v=33";
-import { EmulatorEngine } from "./core/engine.js?v=33";
-import { CatalogModule } from "./modules/catalog.js?v=33";
-import { Router } from "./modules/router.js?v=33";
-import { resolveAssetUrl } from "./core/utils.js?v=33";
-import { GameMatcher } from "./core/matcher.js?v=33";
+import { GameService } from "./services/game-service.js?v=34";
+import { EmulatorEngine } from "./core/engine.js?v=34";
+import { CatalogModule } from "./modules/catalog.js?v=34";
+import { Router } from "./modules/router.js?v=34";
+import { resolveAssetUrl } from "./core/utils.js?v=34";
+import { GameMatcher } from "./core/matcher.js?v=34";
 
 class App {
   constructor() {
@@ -24,6 +24,9 @@ class App {
   exitGameToCatalog() {
     this.showCatalog();
     Router.navigateToCatalog();
+    if ("ontouchstart" in window || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0)) {
+      window.location.replace(window.location.pathname);
+    }
   }
 
   async init() {
