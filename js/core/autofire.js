@@ -26,6 +26,7 @@ export class AutoFireManager {
       this.enabled = !this.enabled;
       localStorage.setItem("retro_autofire", String(this.enabled));
       this.updatePillUI();
+      window.dispatchEvent(new CustomEvent("autofire:changed", { detail: this.enabled }));
     });
   }
 
@@ -43,11 +44,11 @@ export class AutoFireManager {
   setEnabled(val) {
     this.enabled = Boolean(val);
     this.updatePillUI();
+    window.dispatchEvent(new CustomEvent("autofire:changed", { detail: this.enabled }));
   }
 
   start(viewportElement) {
     if (this.pill) {
-      this.pill.classList.remove("hidden");
       this.updatePillUI();
     }
 
@@ -114,6 +115,10 @@ export class AutoFireManager {
       btn.addEventListener("pointerup", stopHandler, { capture: true });
       btn.addEventListener("pointercancel", stopHandler, { capture: true });
     });
+  }
+
+  stop() {
+    this.cleanup();
   }
 
   cleanup() {

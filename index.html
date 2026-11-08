@@ -11,7 +11,7 @@
   <meta http-equiv="Expires" content="0">
   <link rel="manifest" href="manifest.webmanifest">
   <title>Retro NFC Touch - Web Player</title>
-  <link rel="stylesheet" href="css/style.css?v=4">
+  <link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body>
 
@@ -50,12 +50,12 @@
       </div>
     </section>
 
-    <!-- Full Catalog Grid View (quando nenhum jogo é passado na URL) -->
+    <!-- Full Catalog Grid View (quando nenhum jogo e passado na URL) -->
     <section id="catalog-view" class="catalog-section">
       <div class="catalog-toolbar">
         <div class="search-box">
           <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" id="search-input" class="search-input" placeholder="Buscar por título, gênero, ano..." autocomplete="off">
+          <input type="text" id="search-input" class="search-input" placeholder="Buscar por titulo, genero, ano..." autocomplete="off">
           <button id="search-clear" class="search-clear hidden" aria-label="Limpar busca">&times;</button>
         </div>
         <div id="platform-chips" class="platform-chips"></div>
@@ -74,11 +74,11 @@
     </section>
   </main>
 
-  <!-- Modal de Configuracoes -->
+  <!-- Modal Centralizado de Configuracoes & Menu -->
   <div id="settings-modal" class="modal-backdrop hidden">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 class="modal-title">Configuracoes</h3>
+        <h3 class="modal-title">Configuracoes & Menu</h3>
         <button id="btn-close-settings" class="modal-close" aria-label="Fechar">&times;</button>
       </div>
       <div class="modal-body">
@@ -101,6 +101,9 @@
               </div>
             </label>
           </div>
+          <button type="button" id="btn-apply-controls" class="btn-apply-controls hidden">
+            Aplicar Novo Controle ao Jogo
+          </button>
         </div>
 
         <div class="setting-group">
@@ -123,17 +126,63 @@
             </label>
           </div>
         </div>
+
+        <!-- Comandos In-Game -->
+        <div id="modal-game-actions" class="setting-group hidden">
+          <label class="setting-label">Comandos do Jogo</label>
+          <div class="quick-actions-grid">
+            <button type="button" id="btn-quick-save" class="btn-action">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+              <span>Salvar Estado</span>
+            </button>
+            <button type="button" id="btn-quick-load" class="btn-action">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              <span>Carregar Estado</span>
+            </button>
+            <button type="button" id="btn-quick-restart" class="btn-action">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+              <span>Reiniciar Jogo</span>
+            </button>
+            <button type="button" id="btn-quick-exit" class="btn-action btn-action-danger">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              <span>Sair do Jogo</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="btn-dismiss-settings" class="btn-modal-close-main">
+          Voltar ao Jogo
+        </button>
       </div>
     </div>
   </div>
 
   <!-- Fullscreen Emulator Container -->
   <div id="emulator-viewport">
-    <button id="turbo-pill" class="turbo-pill hidden">TURBO: OFF</button>
+    <div id="in-game-hud" class="in-game-hud hidden">
+      <button type="button" id="btn-in-game-exit" class="hud-btn hud-exit" aria-label="Sair para o Catalogo">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>SAIR</span>
+      </button>
+
+      <div class="hud-actions">
+        <button type="button" id="turbo-pill" class="hud-btn hud-turbo">TURBO: OFF</button>
+        <button type="button" id="btn-in-game-menu" class="hud-btn hud-menu" aria-label="Menu e Configuracoes">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+          <span>MENU</span>
+        </button>
+      </div>
+    </div>
     <div id="game-frame"></div>
   </div>
 
-  <script type="module" src="js/main.js?v=6"></script>
+  <script type="module" src="js/main.js?v=7"></script>
 </body>
 </html>
-

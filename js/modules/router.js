@@ -12,9 +12,12 @@ export class Router {
     history.pushState(null, "", `?game=${encodeURIComponent(gameId)}`);
   }
 
+  static navigateToCatalog() {
+    history.pushState(null, "", window.location.pathname);
+  }
+
   static onRoute(callback) {
     window.addEventListener("hashchange", callback);
     window.addEventListener("popstate", callback);
   }
 }
-

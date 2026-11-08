@@ -15,9 +15,31 @@ class App {
 
     this.cardView = document.getElementById("game-card");
     this.catalogView = document.getElementById("catalog-view");
+    this.inGameHud = document.getElementById("in-game-hud");
+    this.btnInGameExit = document.getElementById("btn-in-game-exit");
+    this.btnInGameMenu = document.getElementById("btn-in-game-menu");
     this.games = [];
 
+    this.settings.setEngine(this.engine, () => this.exitGameToCatalog());
+    this.initInGameControls();
     this.init();
+  }
+
+  initInGameControls() {
+    if (this.btnInGameExit) {
+      this.btnInGameExit.addEventListener("click", () => this.exitGameToCatalog());
+    }
+    if (this.btnInGameMenu) {
+      this.btnInGameMenu.addEventListener("click", () => this.settings.open());
+    }
+  }
+
+  exitGameToCatalog() {
+    this.engine.stop();
+    if (this.inGameHud) this.inGameHud.classList.add("hidden");
+    this.settings.setInGameMode(false);
+    this.showCatalog();
+    Router.navigateToCatalog();
   }
 
   async init() {
@@ -71,6 +93,8 @@ class App {
     btnLaunch.onclick = () => {
       this.cardView.classList.add("hidden");
       this.catalogView.classList.add("hidden");
+      if (this.inGameHud) this.inGameHud.classList.remove("hidden");
+      this.settings.setInGameMode(true);
       this.engine.launch(game, this.settings.getControlType(), this.settings.getAutoFire());
     };
   }
@@ -96,4 +120,3 @@ class App {
 document.addEventListener("DOMContentLoaded", () => {
   new App();
 });
-
