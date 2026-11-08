@@ -2,6 +2,17 @@ import { unlockAudioContext } from "./audio.js";
 import { resolveAssetUrl } from "./utils.js";
 import { getVirtualGamepadSettings } from "./gamepad-config.js";
 
+export function isAllowedInteractionTarget(target) {
+  if (!target || typeof target.closest !== "function") return false;
+  return Boolean(
+    target.closest(".ejs_virtualGamepad_open") ||
+    target.closest(".ejs_menu_bar") ||
+    target.closest(".ejs_popup_container") ||
+    target.closest(".ejs_context_menu") ||
+    target.closest(".ejs_button")
+  );
+}
+
 export class EmulatorEngine {
   constructor(viewportElement, targetElement) {
     this.viewportElement = viewportElement;
@@ -92,6 +103,12 @@ export class EmulatorEngine {
             this.stop();
           });
 
+          window.EJS_emulator.on("start", () => {
+            if (window.EJS_emulator.menu && typeof window.EJS_emulator.menu.close === "function") {
+              window.EJS_emulator.menu.close();
+            }
+          });
+
           // Desativa o listener de mousemove da barra de menu no ambiente touch
           if (window.EJS_emulator.menu && window.EJS_emulator.menu.mousemoveListener) {
             try {
@@ -102,7 +119,7 @@ export class EmulatorEngine {
         }
       };
 
-      // Bloqueia eventos sinteticos de mousemove e click no mobile para impedir que a barra de menu inferior suba involuntariamente
+      // Bloqueia eventos sinteticos de mousemove e click para impedir que a barra de menu inferior suba involuntariamente durante o gameplay
       if (!this.mouseGuardsAttached && this.targetElement) {
         this.targetElement.addEventListener(
           "mousemove",
@@ -117,12 +134,9 @@ export class EmulatorEngine {
         this.targetElement.addEventListener(
           "click",
           (e) => {
-            if (
-              ("ontouchstart" in window || navigator.maxTouchPoints > 0) &&
-              e.target &&
-              e.target.tagName === "CANVAS"
-            ) {
+            if (!isAllowedInteractionTarget(e.target)) {
               e.stopImmediatePropagation();
+              e.preventDefault();
             }
           },
           true
@@ -138,6 +152,16 @@ export class EmulatorEngine {
             }
           },
           { passive: false }
+        );
+
+        this.targetElement.addEventListener(
+          "contextmenu",
+          (e) => {
+            if (!isAllowedInteractionTarget(e.target)) {
+              e.preventDefault();
+            }
+          },
+          true
         );
 
         this.mouseGuardsAttached = true;

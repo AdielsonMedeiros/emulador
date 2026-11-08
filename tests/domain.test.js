@@ -5,6 +5,7 @@ import path from "node:path";
 import { GameMatcher } from "../js/core/matcher.js";
 import { resolveAssetUrl, SafeStorage } from "../js/core/utils.js";
 import { getVirtualGamepadSettings } from "../js/core/gamepad-config.js";
+import { isAllowedInteractionTarget } from "../js/core/engine.js";
 
 // Mock de catalogo para testes de unidade
 const mockGames = [
@@ -179,5 +180,63 @@ test("GamepadConfig: configuracao calibrada para Arcade (fbneo / arcade)", () =>
   for (const id of ["x", "y", "l", "a", "b", "r"]) {
     assert.ok(layout.find((i) => i.id === id), `Botao ${id} ausente no Arcade`);
   }
+});
+
+function createMockElement(classList = [], parent = null) {
+  return {
+    classList,
+    parent,
+    closest(selector) {
+      let curr = this;
+      const targetClass = selector.replace(".", "");
+      while (curr) {
+        if (curr.classList && curr.classList.includes(targetClass)) return curr;
+        curr = curr.parent;
+      }
+      return null;
+    }
+  };
+}
+
+test("Engine: isAllowedInteractionTarget bloqueia controles de jogo e canvas para impedir subida do menu", () => {
+  // Gamepad parent e botoes virtuais
+  const gamepadParent = createMockElement(["ejs_virtualGamepad_parent"]);
+  const buttonX = createMockElement(["ejs_virtualGamepad_button", "b_x"], gamepadParent);
+  const buttonA = createMockElement(["ejs_virtualGamepad_button", "b_a"], gamepadParent);
+  const stick = createMockElement(["b_stick"], gamepadParent);
+  const canvas = createMockElement(["ejs_canvas"]);
+  const gameFrame = createMockElement(["game-frame"]);
+
+  assert.equal(isAllowedInteractionTarget(buttonX), false);
+  assert.equal(isAllowedInteractionTarget(buttonA), false);
+  assert.equal(isAllowedInteractionTarget(stick), false);
+  assert.equal(isAllowedInteractionTarget(canvas), false);
+  assert.equal(isAllowedInteractionTarget(gameFrame), false);
+  assert.equal(isAllowedInteractionTarget(null), false);
+  assert.equal(isAllowedInteractionTarget({}), false);
+});
+
+test("Engine: isAllowedInteractionTarget autoriza botao hamburger, menu bar e popups legitimos", () => {
+  // Botao hamburger superior direito
+  const hamburger = createMockElement(["ejs_virtualGamepad_open"]);
+  assert.equal(isAllowedInteractionTarget(hamburger), true);
+
+  // Itens da barra de menu
+  const menuBar = createMockElement(["ejs_menu_bar"]);
+  const menuItem = createMockElement(["ejs_menu_button"], menuBar);
+  assert.equal(isAllowedInteractionTarget(menuItem), true);
+
+  // Popup de configuracoes de controle (Reset, Clear, Close, Set)
+  const popup = createMockElement(["ejs_popup_container"]);
+  const btnReset = createMockElement(["ejs_button"], popup);
+  const btnClear = createMockElement(["ejs_button"], popup);
+  const btnClose = createMockElement(["ejs_button"], popup);
+  assert.equal(isAllowedInteractionTarget(btnReset), true);
+  assert.equal(isAllowedInteractionTarget(btnClear), true);
+  assert.equal(isAllowedInteractionTarget(btnClose), true);
+
+  // Context menu
+  const contextMenu = createMockElement(["ejs_context_menu"]);
+  assert.equal(isAllowedInteractionTarget(contextMenu), true);
 });
 
