@@ -1,6 +1,6 @@
-import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=36";
-import { resolveAssetUrl } from "./utils.js?v=36";
-import { getVirtualGamepadSettings } from "./gamepad-config.js?v=36";
+import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=37";
+import { resolveAssetUrl } from "./utils.js?v=37";
+import { getVirtualGamepadSettings } from "./gamepad-config.js?v=37";
 
 export function isAllowedInteractionTarget(target) {
   if (!target || typeof target.closest !== "function") return false;
@@ -85,12 +85,19 @@ export class EmulatorEngine {
       window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
       window.EJS_VirtualGamepadSettings = getVirtualGamepadSettings(game.core);
 
+      const isIOS =
+        typeof navigator !== "undefined" &&
+        (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+
       window.EJS_threads = false;
       window.EJS_disableDatabases = true;
       window.EJS_disableLocalStorage = true;
       window.EJS_CacheLimit = 0;
       window.EJS_cacheLimit = 0;
       window.EJS_dontExtractBIOS = true;
+      // No iOS WebKit, forcar core legado (WebGL 1.0) previne o vazamento de backing-store do compositor WebGL2
+      window.EJS_forceLegacyCores = isIOS;
 
       const isArcade = game.core === "fbneo" || game.core === "arcade";
 
