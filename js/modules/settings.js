@@ -115,13 +115,8 @@ export class SettingsModule {
         if (this.engine && this.engine.autoFire) {
           this.engine.autoFire.setEnabled(this.autoFire);
         }
+        this.showToast(this.autoFire ? "Modo Auto-Fire (Turbo) ativado." : "Modo Auto-Fire desativado.");
       });
-    });
-
-    window.addEventListener("autofire:changed", (e) => {
-      this.autoFire = Boolean(e.detail);
-      const radio = document.querySelector(`input[name="autofire-setting"][value="${String(this.autoFire)}"]`);
-      if (radio) radio.checked = true;
     });
 
     if (this.btnQuickSave) {

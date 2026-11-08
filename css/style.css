@@ -717,13 +717,6 @@ main {
   color: #fff;
 }
 
-.hud-turbo.active {
-  background: #e74c3c;
-  color: #fff;
-  border-color: #e74c3c;
-  box-shadow: 0 0 14px rgba(231, 76, 60, 0.6);
-}
-
 /* Hide EmulatorJS confusing native bottom bar and faint hamburger button */
 .ejs_virtualGamepad_open,
 .ejs_menu_bar,

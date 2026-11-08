@@ -10,48 +10,20 @@ export class AutoFireManager {
   constructor() {
     this.enabled = localStorage.getItem("retro_autofire") === "true";
     this.activeIntervals = new Map();
-    this.pill = document.getElementById("turbo-pill");
     this.observer = null;
     this.attachedButtons = new Set();
-
-    this.initPill();
-  }
-
-  initPill() {
-    if (!this.pill) return;
-    this.updatePillUI();
-
-    this.pill.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.enabled = !this.enabled;
-      localStorage.setItem("retro_autofire", String(this.enabled));
-      this.updatePillUI();
-      window.dispatchEvent(new CustomEvent("autofire:changed", { detail: this.enabled }));
-    });
-  }
-
-  updatePillUI() {
-    if (!this.pill) return;
-    if (this.enabled) {
-      this.pill.textContent = "TURBO: ON";
-      this.pill.classList.add("active");
-    } else {
-      this.pill.textContent = "TURBO: OFF";
-      this.pill.classList.remove("active");
-    }
   }
 
   setEnabled(val) {
     this.enabled = Boolean(val);
-    this.updatePillUI();
-    window.dispatchEvent(new CustomEvent("autofire:changed", { detail: this.enabled }));
+    localStorage.setItem("retro_autofire", String(this.enabled));
+  }
+
+  isEnabled() {
+    return this.enabled;
   }
 
   start(viewportElement) {
-    if (this.pill) {
-      this.updatePillUI();
-    }
-
     this.cleanup();
 
     this.observer = new MutationObserver(() => {
