@@ -3,6 +3,7 @@ import { EmulatorEngine } from "./core/engine.js?v=23";
 import { CatalogModule } from "./modules/catalog.js?v=23";
 import { Router } from "./modules/router.js?v=23";
 import { resolveAssetUrl } from "./core/utils.js?v=23";
+import { GameMatcher } from "./core/matcher.js?v=23";
 
 class App {
   constructor() {
@@ -40,29 +41,10 @@ class App {
     }
   }
 
-  findGame(query) {
-    if (!query) return null;
-    const clean = String(query).toLowerCase().trim();
-    const alphanumeric = clean.replace(/[^a-z0-9]/g, "");
-
-    return (
-      this.games.find((g) => g.id.toLowerCase() === clean) ||
-      this.games.find((g) => g.id.toLowerCase().replace(/[^a-z0-9]/g, "") === alphanumeric) ||
-      this.games.find((g) => g.title.toLowerCase().replace(/[^a-z0-9]/g, "") === alphanumeric) ||
-      this.games.find((g) => {
-        const romBase = g.rom.split("/").pop().split(".")[0].toLowerCase();
-        const coverBase = g.cover.split("/").pop().split(".")[0].toLowerCase().replace("-cover", "");
-        return romBase === clean || coverBase === clean || romBase === alphanumeric || coverBase === alphanumeric;
-      }) ||
-      this.games.find((g) => g.title.toLowerCase().replace(/[^a-z0-9]/g, "").startsWith(alphanumeric)) ||
-      null
-    );
-  }
-
   handleRoute() {
     const gameId = Router.getGameIdFromUrl();
     if (gameId) {
-      const game = this.findGame(gameId);
+      const game = GameMatcher.find(this.games, gameId);
       if (game) {
         this.showGameCard(game);
         return;
