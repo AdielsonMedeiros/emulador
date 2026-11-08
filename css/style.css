@@ -765,12 +765,12 @@ main {
   height: 38px !important;
   top: max(10px, env(safe-area-inset-top, 10px)) !important;
   right: max(10px, env(safe-area-inset-right, 10px)) !important;
-  background: #e0564c !important;
+  background: rgba(0, 0, 0, 0.45) !important;
   color: #ffffff !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  border: 1.5px solid #ffffff !important;
   border-radius: 10px !important;
   opacity: 1 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 10px rgba(224, 86, 76, 0.45) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
   z-index: 9999 !important;
   cursor: pointer !important;
   transition: transform 0.1s ease, filter 0.1s ease !important;
