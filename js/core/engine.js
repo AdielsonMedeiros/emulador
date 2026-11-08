@@ -190,4 +190,119 @@ export class EmulatorEngine {
     }
     return false;
   }
+
+  togglePause() {
+    if (!window.EJS_emulator) return false;
+    if (window.EJS_emulator.paused) {
+      if (typeof window.EJS_emulator.play === "function") {
+        window.EJS_emulator.play();
+      }
+      return false; // agora esta rodando
+    } else {
+      if (typeof window.EJS_emulator.pause === "function") {
+        window.EJS_emulator.pause();
+      }
+      return true; // agora esta pausado
+    }
+  }
+
+  isPaused() {
+    return Boolean(window.EJS_emulator && window.EJS_emulator.paused);
+  }
+
+  setVolume(volPercent) {
+    if (window.EJS_emulator && typeof window.EJS_emulator.setVolume === "function") {
+      const vol = Math.max(0, Math.min(1, volPercent / 100));
+      window.EJS_emulator.setVolume(vol);
+      window.EJS_emulator.volume = vol;
+      window.EJS_emulator.muted = vol === 0;
+    }
+  }
+
+  openCheats() {
+    if (window.EJS_emulator && window.EJS_emulator.cheatMenu) {
+      window.EJS_emulator.cheatMenu.style.display = "";
+      return true;
+    }
+    return false;
+  }
+
+  openControlSettings() {
+    if (window.EJS_emulator && window.EJS_emulator.controlMenu) {
+      window.EJS_emulator.controlMenu.style.display = "";
+      return true;
+    }
+    return false;
+  }
+
+  openCacheManager() {
+    if (window.EJS_emulator && typeof window.EJS_emulator.openCacheMenu === "function") {
+      window.EJS_emulator.openCacheMenu();
+      return true;
+    }
+    return false;
+  }
+
+  openEngineSettings() {
+    if (window.EJS_emulator && window.EJS_emulator.settingsMenu) {
+      window.EJS_emulator.settingsMenuOpen = true;
+      window.EJS_emulator.settingsMenu.style.display = "";
+      return true;
+    }
+    return false;
+  }
+
+  async exportSaveFile() {
+    if (!window.EJS_emulator || !window.EJS_emulator.gameManager) return false;
+    try {
+      const file = await window.EJS_emulator.gameManager.getSaveFile();
+      if (!file) return false;
+      const blob = new Blob([file]);
+      const savUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = savUrl;
+      const filename = window.EJS_emulator.gameManager.getSaveFilePath
+        ? window.EJS_emulator.gameManager.getSaveFilePath().split("/").pop()
+        : `${this.currentGame ? this.currentGame.title : "save"}.sav`;
+      a.download = filename || "game.sav";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        a.remove();
+        URL.revokeObjectURL(savUrl);
+      }, 1000);
+      return true;
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
+  }
+
+  async importSaveFile() {
+    if (!window.EJS_emulator || !window.EJS_emulator.selectFile) return false;
+    try {
+      const file = await window.EJS_emulator.selectFile();
+      if (!file) return false;
+      const sav = new Uint8Array(await file.arrayBuffer());
+      const path = window.EJS_emulator.gameManager.getSaveFilePath();
+      const paths = path.split("/");
+      let cp = "";
+      for (let i = 0; i < paths.length - 1; i++) {
+        if (paths[i] === "") continue;
+        cp += "/" + paths[i];
+        if (!window.EJS_emulator.gameManager.FS.analyzePath(cp).exists) {
+          window.EJS_emulator.gameManager.FS.mkdir(cp);
+        }
+      }
+      if (window.EJS_emulator.gameManager.FS.analyzePath(path).exists) {
+        window.EJS_emulator.gameManager.FS.unlink(path);
+      }
+      window.EJS_emulator.gameManager.FS.writeFile(path, sav);
+      window.EJS_emulator.gameManager.restart();
+      return true;
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
+  }
 }

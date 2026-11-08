@@ -2,6 +2,7 @@ export class SettingsModule {
   constructor() {
     this.controlType = localStorage.getItem("retro_control_type") || "dpad";
     this.autoFire = localStorage.getItem("retro_autofire") === "true";
+    this.volume = parseInt(localStorage.getItem("retro_volume") || "100", 10);
     this.inGameMode = false;
     this.engine = null;
     this.onExitGame = null;
@@ -13,9 +14,28 @@ export class SettingsModule {
     this.btnApplyControls = document.getElementById("btn-apply-controls");
     this.gameActionsSection = document.getElementById("modal-game-actions");
 
+    // Volume
+    this.volumeSlider = document.getElementById("volume-slider");
+    this.volumeBadge = document.getElementById("volume-val-badge");
+
+    // Gameplay actions
+    this.btnQuickPause = document.getElementById("btn-quick-pause");
+    this.txtQuickPause = document.getElementById("txt-quick-pause");
+    this.btnQuickRestart = document.getElementById("btn-quick-restart");
     this.btnQuickSave = document.getElementById("btn-quick-save");
     this.btnQuickLoad = document.getElementById("btn-quick-load");
-    this.btnQuickRestart = document.getElementById("btn-quick-restart");
+
+    // Save files (.sav)
+    this.btnExportSav = document.getElementById("btn-export-sav");
+    this.btnImportSav = document.getElementById("btn-import-sav");
+
+    // Ferramentas do emulador (antigo menu hamburguer)
+    this.btnOpenControlsMap = document.getElementById("btn-open-controls-map");
+    this.btnOpenCheats = document.getElementById("btn-open-cheats");
+    this.btnOpenCache = document.getElementById("btn-open-cache");
+    this.btnOpenEngineSettings = document.getElementById("btn-open-engine-settings");
+
+    // Exit
     this.btnQuickExit = document.getElementById("btn-quick-exit");
 
     this.initListeners();
@@ -59,6 +79,17 @@ export class SettingsModule {
       this.btnApplyControls.classList.add("hidden");
     }
 
+    if (this.volumeSlider) {
+      this.volumeSlider.value = this.volume;
+    }
+    if (this.volumeBadge) {
+      this.volumeBadge.textContent = `${this.volume}%`;
+    }
+
+    if (this.txtQuickPause && this.engine) {
+      this.txtQuickPause.textContent = this.engine.isPaused() ? "Retomar Jogo" : "Pausar Jogo";
+    }
+
     const currentRadio = document.querySelector(`input[name="control-type"][value="${this.controlType}"]`);
     if (currentRadio) currentRadio.checked = true;
 
@@ -82,6 +113,21 @@ export class SettingsModule {
       });
     }
 
+    // Volume Slider
+    if (this.volumeSlider) {
+      this.volumeSlider.addEventListener("input", (e) => {
+        this.volume = parseInt(e.target.value, 10);
+        localStorage.setItem("retro_volume", String(this.volume));
+        if (this.volumeBadge) {
+          this.volumeBadge.textContent = `${this.volume}%`;
+        }
+        if (this.engine) {
+          this.engine.setVolume(this.volume);
+        }
+      });
+    }
+
+    // Control Type
     document.querySelectorAll('input[name="control-type"]').forEach((input) => {
       input.addEventListener("change", (e) => {
         this.controlType = e.target.value;
@@ -108,6 +154,7 @@ export class SettingsModule {
       });
     }
 
+    // AutoFire
     document.querySelectorAll('input[name="autofire-setting"]').forEach((input) => {
       input.addEventListener("change", (e) => {
         this.autoFire = e.target.value === "true";
@@ -119,6 +166,31 @@ export class SettingsModule {
       });
     });
 
+    // Pausar / Retomar
+    if (this.btnQuickPause) {
+      this.btnQuickPause.addEventListener("click", () => {
+        if (this.engine) {
+          const paused = this.engine.togglePause();
+          if (this.txtQuickPause) {
+            this.txtQuickPause.textContent = paused ? "Retomar Jogo" : "Pausar Jogo";
+          }
+          this.showToast(paused ? "Jogo pausado." : "Jogo retomado.");
+        }
+      });
+    }
+
+    // Reiniciar
+    if (this.btnQuickRestart) {
+      this.btnQuickRestart.addEventListener("click", () => {
+        if (this.engine) {
+          this.engine.restart();
+          this.showToast("Jogo reiniciado.");
+          this.close();
+        }
+      });
+    }
+
+    // Salvar Estado
     if (this.btnQuickSave) {
       this.btnQuickSave.addEventListener("click", () => {
         if (this.engine && this.engine.quickSave()) {
@@ -129,6 +201,7 @@ export class SettingsModule {
       });
     }
 
+    // Carregar Estado
     if (this.btnQuickLoad) {
       this.btnQuickLoad.addEventListener("click", () => {
         if (this.engine && this.engine.quickLoad()) {
@@ -140,16 +213,80 @@ export class SettingsModule {
       });
     }
 
-    if (this.btnQuickRestart) {
-      this.btnQuickRestart.addEventListener("click", () => {
+    // Exportar Save (.sav)
+    if (this.btnExportSav) {
+      this.btnExportSav.addEventListener("click", async () => {
         if (this.engine) {
-          this.engine.restart();
-          this.showToast("Jogo reiniciado.");
-          this.close();
+          const ok = await this.engine.exportSaveFile();
+          if (ok) {
+            this.showToast("Download do save (.sav) iniciado.");
+          } else {
+            this.showToast("Nenhum dado de save encontrado para exportar.");
+          }
         }
       });
     }
 
+    // Importar Save (.sav)
+    if (this.btnImportSav) {
+      this.btnImportSav.addEventListener("click", async () => {
+        if (this.engine) {
+          const ok = await this.engine.importSaveFile();
+          if (ok) {
+            this.showToast("Save (.sav) importado com sucesso. Jogo reiniciado.");
+            this.close();
+          } else {
+            this.showToast("Importacao cancelada ou invalida.");
+          }
+        }
+      });
+    }
+
+    // Mapear Controles Físicos
+    if (this.btnOpenControlsMap) {
+      this.btnOpenControlsMap.addEventListener("click", () => {
+        if (this.engine && this.engine.openControlSettings()) {
+          this.close();
+        } else {
+          this.showToast("Mapeamento indisponivel neste momento.");
+        }
+      });
+    }
+
+    // Cheats / Trapaças
+    if (this.btnOpenCheats) {
+      this.btnOpenCheats.addEventListener("click", () => {
+        if (this.engine && this.engine.openCheats()) {
+          this.close();
+        } else {
+          this.showToast("Menu de cheats indisponivel para este console.");
+        }
+      });
+    }
+
+    // Gerenciador de Cache
+    if (this.btnOpenCache) {
+      this.btnOpenCache.addEventListener("click", () => {
+        if (this.engine && this.engine.openCacheManager()) {
+          this.close();
+        } else {
+          this.showToast("Gerenciador de cache indisponivel.");
+        }
+      });
+    }
+
+    // Configurações da Engine
+    if (this.btnOpenEngineSettings) {
+      this.btnOpenEngineSettings.addEventListener("click", () => {
+        if (this.engine && this.engine.openEngineSettings()) {
+          this.close();
+        } else {
+          this.showToast("Configuracoes da engine indisponiveis.");
+        }
+      });
+    }
+
+    // Sair do Jogo
     if (this.btnQuickExit) {
       this.btnQuickExit.addEventListener("click", () => {
         this.close();
