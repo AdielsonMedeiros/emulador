@@ -2883,6 +2883,34 @@
       "rom": "roms/pokemonstadium.z64",
       "cover": "covers/pokemonstadium-cover.png",
       "color": "#e74c3c"
+    },
+    {
+      "id": "mslug",
+      "title": "Metal Slug - Super Vehicle-001",
+      "platform": "Arcade",
+      "core": "fbneo",
+      "year": 1996,
+      "publisher": "SNK / Nazca",
+      "players": "1-2 Jogadores",
+      "genre": "Acao / Run and Gun",
+      "description": "O lendario run and gun de estreia da franquia Metal Slug, com animacoes primorosas em pixel art, veiculos tanques destrutivos e combates intensos da Peregrine Falcon Squad.",
+      "rom": "roms/mslug.zip",
+      "cover": "covers/mslug-cover.png",
+      "color": "#f59e0b"
+    },
+    {
+      "id": "kof98",
+      "title": "The King of Fighters '98",
+      "platform": "Arcade",
+      "core": "fbneo",
+      "year": 1998,
+      "publisher": "SNK",
+      "players": "1-2 Jogadores",
+      "genre": "Luta",
+      "description": "A aclamada 'Dream Match' da SNK que reune o elenco de ouro da saga Orochi com jogabilidade perfeitamente balanceada nos modos Extra e Advanced.",
+      "rom": "roms/kof98.zip",
+      "cover": "covers/kof98-cover.png",
+      "color": "#dc2626"
     }
   ]
 }

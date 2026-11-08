@@ -4,7 +4,8 @@
   "description": "NFC Retro Web Player",
   "type": "module",
   "scripts": {
-    "test": "node --test tests/domain.test.js"
+    "test": "node --test tests/domain.test.js",
+    "merge-arcade": "node scripts/merge-arcade.mjs"
   },
   "keywords": [
     "emulator",
