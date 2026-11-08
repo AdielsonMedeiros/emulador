@@ -55,3 +55,4 @@ export function resolveAssetUrl(relPath) {
     return clean;
   }
 }
+

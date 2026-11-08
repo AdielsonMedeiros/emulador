@@ -1,14 +1,12 @@
-import { GameService } from "./services/game-service.js?v=22";
-import { EmulatorEngine } from "./core/engine.js?v=22";
-import { SettingsModule } from "./modules/settings.js?v=22";
-import { CatalogModule } from "./modules/catalog.js?v=22";
-import { Router } from "./modules/router.js?v=22";
-import { resolveAssetUrl } from "./core/utils.js?v=22";
+import { GameService } from "./services/game-service.js?v=23";
+import { EmulatorEngine } from "./core/engine.js?v=23";
+import { CatalogModule } from "./modules/catalog.js?v=23";
+import { Router } from "./modules/router.js?v=23";
+import { resolveAssetUrl } from "./core/utils.js?v=23";
 
 class App {
   constructor() {
     this.gameService = new GameService();
-    this.settings = new SettingsModule();
     this.engine = new EmulatorEngine(
       document.getElementById("emulator-viewport"),
       document.getElementById("game-frame")
@@ -18,14 +16,11 @@ class App {
     this.catalogView = document.getElementById("catalog-view");
     this.games = [];
 
-    this.settings.setEngine(this.engine, () => this.exitGameToCatalog());
     this.engine.setOnExit(() => this.exitGameToCatalog());
     this.init();
   }
 
   exitGameToCatalog() {
-    this.engine.stop();
-    this.settings.setInGameMode(false);
     this.showCatalog();
     Router.navigateToCatalog();
   }
@@ -101,8 +96,7 @@ class App {
     btnLaunch.onclick = () => {
       this.cardView.classList.add("hidden");
       this.catalogView.classList.add("hidden");
-      this.settings.setInGameMode(true);
-      this.engine.launch(game, this.settings.getControlType(), this.settings.getAutoFire());
+      this.engine.launch(game);
     };
   }
 
