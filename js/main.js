@@ -1,0 +1,95 @@
+import { GameService } from "./services/game-service.js";
+import { EmulatorEngine } from "./core/engine.js";
+import { SettingsModule } from "./modules/settings.js";
+import { CatalogModule } from "./modules/catalog.js";
+import { Router } from "./modules/router.js";
+
+class App {
+  constructor() {
+    this.gameService = new GameService();
+    this.settings = new SettingsModule();
+    this.engine = new EmulatorEngine(
+      document.getElementById("emulator-viewport"),
+      document.getElementById("game-frame")
+    );
+
+    this.cardView = document.getElementById("game-card");
+    this.catalogView = document.getElementById("catalog-view");
+    this.games = [];
+
+    this.init();
+  }
+
+  async init() {
+    try {
+      this.games = await this.gameService.fetchGames();
+      this.catalog = new CatalogModule(this.games, (game) => this.showGameCard(game));
+
+      this.handleRoute();
+      Router.onRoute(() => this.handleRoute());
+    } catch (err) {
+      this.showToast(`Erro ao inicializar: ${err.message}`);
+    }
+  }
+
+  handleRoute() {
+    const gameId = Router.getGameIdFromUrl();
+    if (gameId) {
+      const game = this.games.find((g) => g.id.toLowerCase() === gameId.toLowerCase());
+      if (game) {
+        this.showGameCard(game);
+        return;
+      }
+      this.showToast(`Jogo '${gameId}' nao encontrado.`);
+    }
+    this.showCatalog();
+  }
+
+  showGameCard(game) {
+    this.catalogView.classList.add("hidden");
+    this.cardView.classList.remove("hidden");
+
+    document.getElementById("card-title").textContent = game.title;
+    document.getElementById("card-players").textContent = game.players;
+    document.getElementById("card-year").textContent = game.year;
+    document.getElementById("card-publisher").textContent = game.publisher;
+    document.getElementById("card-genre").textContent = game.genre;
+    document.getElementById("card-desc").textContent = game.description;
+
+    const coverImg = document.getElementById("card-cover");
+    coverImg.src = game.cover;
+    coverImg.alt = game.title;
+    coverImg.onerror = () => {
+      coverImg.src = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='260' viewBox='0 0 400 260'%3E%3Crect fill='%231a1d2e' width='400' height='260'/%3E%3Ctext fill='%2394a3b8' font-family='sans-serif' font-size='18' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3ESem Capa%3C/text%3E%3C/svg%3E";
+    };
+
+    const btnLaunch = document.getElementById("btn-launch");
+    btnLaunch.style.backgroundColor = game.color || "#6366f1";
+    btnLaunch.onclick = () => {
+      this.cardView.classList.add("hidden");
+      this.catalogView.classList.add("hidden");
+      this.engine.launch(game, this.settings.getControlType());
+    };
+  }
+
+  showCatalog() {
+    this.cardView.classList.add("hidden");
+    this.catalogView.classList.remove("hidden");
+  }
+
+  showToast(message) {
+    const existing = document.querySelector(".toast");
+    if (existing) existing.remove();
+
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 4000);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  new App();
+});
