@@ -92,6 +92,12 @@ export class EmulatorEngine {
         window.EJS_webgl = false;
       }
 
+      if (game.core === "fbneo") {
+        window.EJS_biosUrl = resolveAssetUrl("roms/neogeo.zip");
+      } else {
+        delete window.EJS_biosUrl;
+      }
+
       window.EJS_alignAudio = false;
       window.EJS_audioWorklet = false;
       window.EJS_sampleRate = 44100;
@@ -252,6 +258,7 @@ export class EmulatorEngine {
 
     delete window.EJS_emulator;
     delete window.EJS_VirtualGamepadSettings;
+    delete window.EJS_biosUrl;
 
     if (this.layoutObserver) {
       this.layoutObserver.disconnect();

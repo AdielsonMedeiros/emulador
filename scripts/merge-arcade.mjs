@@ -40,21 +40,29 @@ function mergeArcadeRom() {
   fs.mkdirSync(TEMP_DIR, { recursive: true });
 
   try {
-    // 1. Extrai a BIOS na pasta temporaria
-    execFileSync("tar", ["-xf", biosPath, "-C", TEMP_DIR]);
-
-    // 2. Extrai a ROM do jogo sobre a pasta temporaria (sobrescreve se houver arquivo com mesmo nome)
+    // 1. Extrai a ROM do jogo na pasta temporaria
     execFileSync("tar", ["-xf", gamePath, "-C", TEMP_DIR]);
 
-    // 3. Compacta tudo de volta no arquivo de destino como Non-Merged Set
+    // 2. Extrai a BIOS moderna sobre a pasta temporaria (garante que os arquivos da BIOS atualizados sobrescrevam os legados)
+    execFileSync("tar", ["-xf", biosPath, "-C", TEMP_DIR]);
+
+    // Remove arquivos de propaganda ou extensoes obsoletas
+    const filesToPurge = ["downloaded.from.WWW.ROMNATION.NET.html", "sfix.sfx"];
+    for (const f of filesToPurge) {
+      const p = path.join(TEMP_DIR, f);
+      if (fs.existsSync(p)) fs.unlinkSync(p);
+    }
+
+    // 3. Compacta tudo de volta no arquivo de destino como Non-Merged Set sem prefixo './'
     const backupPath = gamePath + ".bak";
     fs.copyFileSync(gamePath, backupPath);
 
     // Remove arquivo original para re-compactar
     fs.unlinkSync(gamePath);
 
-    // Gera o zip final com todos os arquivos no root
-    execFileSync("tar", ["-a", "-cf", gamePath, "-C", TEMP_DIR, "."]);
+    // Passa lista de arquivos relativos sem prefixo './'
+    const entries = fs.readdirSync(TEMP_DIR);
+    execFileSync("tar", ["-a", "-cf", gamePath, ...entries], { cwd: TEMP_DIR });
 
     // Limpa backup e temporarios
     fs.unlinkSync(backupPath);

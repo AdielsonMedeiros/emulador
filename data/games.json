@@ -2995,6 +2995,76 @@
       "rom": "roms/kof2002.zip",
       "cover": "covers/kof2002-cover.png",
       "color": "#2563eb"
+    },
+    {
+      "id": "mslug2",
+      "title": "Metal Slug 2",
+      "platform": "Arcade",
+      "core": "fbneo",
+      "year": 1998,
+      "publisher": "SNK",
+      "players": "1-2 Jogadores",
+      "genre": "Acao / Run and Gun",
+      "description": "A consagrada continuacao com a estreia de Eri Kasamoto e Fio Germi, novos blindados Slug Flyer e Camel Slug, alem de transformacoes bizarras como a mumia e o estado obeso.",
+      "rom": "roms/mslug2.zip",
+      "cover": "covers/mslug2-cover.png",
+      "color": "#f97316"
+    },
+    {
+      "id": "mslugx",
+      "title": "Metal Slug X",
+      "platform": "Arcade",
+      "core": "fbneo",
+      "year": 1999,
+      "publisher": "SNK",
+      "players": "1-2 Jogadores",
+      "genre": "Acao / Run and Gun",
+      "description": "Versao definitiva e ultra-turbinada de Metal Slug 2, eliminando slowdowns do hardware original, rearranjando inimigos e adicionando novos armamentos como o Iron Lizard e o Drop Shot.",
+      "rom": "roms/mslugx.zip",
+      "cover": "covers/mslugx-cover.png",
+      "color": "#eab308"
+    },
+    {
+      "id": "mslug3",
+      "title": "Metal Slug 3",
+      "platform": "Arcade",
+      "core": "fbneo",
+      "year": 2000,
+      "publisher": "SNK",
+      "players": "1-2 Jogadores",
+      "genre": "Acao / Run and Gun",
+      "description": "A obra-prima definitiva da franquia com rotas ramificadas nao-lineares em cada estagio, uma batalha espacial epica na nave-mae alienigena e dezenas de novos veiculos Slug.",
+      "rom": "roms/mslug3.zip",
+      "cover": "covers/mslug3-cover.png",
+      "color": "#10b981"
+    },
+    {
+      "id": "mslug4",
+      "title": "Metal Slug 4",
+      "platform": "Arcade",
+      "core": "fbneo",
+      "year": 2002,
+      "publisher": "Mega Enterprise / Playmore",
+      "players": "1-2 Jogadores",
+      "genre": "Acao / Run and Gun",
+      "description": "Estreia dos agentes Trevor Spacey e Nadia Cassel enfrentando a organizacao cibernetica terrorista Amadeus, introduzindo o sistema de medalhas e combos de pontuacao metal.",
+      "rom": "roms/mslug4.zip",
+      "cover": "covers/mslug4-cover.png",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "mslug5",
+      "title": "Metal Slug 5",
+      "platform": "Arcade",
+      "core": "fbneo",
+      "year": 2003,
+      "publisher": "SNK Playmore",
+      "players": "1-2 Jogadores",
+      "genre": "Acao / Run and Gun",
+      "description": "Combate moderno contra o Sindicato Ptolemaico com a mecanica inedita de deslize tatica (slide), novos veiculos como o Slug Gunner mecanico e trilha sonora heavy metal arrebatadora.",
+      "rom": "roms/mslug5.zip",
+      "cover": "covers/mslug5-cover.png",
+      "color": "#8b5cf6"
     }
   ]
 }
