@@ -71,7 +71,7 @@ class App {
     btnLaunch.onclick = () => {
       this.cardView.classList.add("hidden");
       this.catalogView.classList.add("hidden");
-      this.engine.launch(game, this.settings.getControlType());
+      this.engine.launch(game, this.settings.getControlType(), this.settings.getAutoFire());
     };
   }
 

@@ -1,14 +1,19 @@
 import { unlockAudioContext } from "./audio.js";
 import { getAnalogGamepadSettings } from "./controls.js";
+import { AutoFireManager } from "./autofire.js";
 
 export class EmulatorEngine {
   constructor(viewportElement, targetElement) {
     this.viewportElement = viewportElement;
     this.targetElement = targetElement;
+    this.autoFire = new AutoFireManager();
   }
 
-  launch(game, controlType) {
+  launch(game, controlType, autoFireEnabled) {
     this.viewportElement.style.display = "block";
+
+    this.autoFire.setEnabled(autoFireEnabled);
+    this.autoFire.start(this.viewportElement);
 
     if (document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen().catch(() => {});

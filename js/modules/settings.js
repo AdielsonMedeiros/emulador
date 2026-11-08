@@ -1,6 +1,7 @@
 export class SettingsModule {
   constructor() {
     this.controlType = localStorage.getItem("retro_control_type") || "dpad";
+    this.autoFire = localStorage.getItem("retro_autofire") === "true";
     this.modal = document.getElementById("settings-modal");
     this.btnOpen = document.getElementById("btn-open-settings");
     this.btnClose = document.getElementById("btn-close-settings");
@@ -30,10 +31,24 @@ export class SettingsModule {
         localStorage.setItem("retro_control_type", this.controlType);
       });
     });
+
+    const currentAutofireRadio = document.querySelector(`input[name="autofire-setting"][value="${String(this.autoFire)}"]`);
+    if (currentAutofireRadio) currentAutofireRadio.checked = true;
+
+    document.querySelectorAll('input[name="autofire-setting"]').forEach((input) => {
+      input.addEventListener("change", (e) => {
+        this.autoFire = e.target.value === "true";
+        localStorage.setItem("retro_autofire", String(this.autoFire));
+      });
+    });
   }
 
   getControlType() {
     return this.controlType;
+  }
+
+  getAutoFire() {
+    return this.autoFire;
   }
 }
 

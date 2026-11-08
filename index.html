@@ -102,16 +102,38 @@
             </label>
           </div>
         </div>
+
+        <div class="setting-group">
+          <label class="setting-label">Modo Auto-Fire (Turbo)</label>
+          <p class="setting-desc">Ao segurar os botoes de acao (A, B, X, Y), dispara rajadas continuas de socos ou tiros.</p>
+          <div class="setting-radios">
+            <label class="radio-card">
+              <input type="radio" name="autofire-setting" value="false">
+              <div class="radio-content">
+                <span class="radio-title">Desativado</span>
+                <span class="radio-desc">Padrao dos consoles: 1 toque = 1 acao.</span>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="autofire-setting" value="true">
+              <div class="radio-content">
+                <span class="radio-title">Ativado (Auto-Fire 22Hz)</span>
+                <span class="radio-desc">Segurar o botao atira ou golpeia em rajada automatica continua.</span>
+              </div>
+            </label>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Fullscreen Emulator Container -->
   <div id="emulator-viewport">
+    <button id="turbo-pill" class="turbo-pill hidden">TURBO: OFF</button>
     <div id="game-frame"></div>
   </div>
 
-  <script type="module" src="js/main.js?v=5"></script>
+  <script type="module" src="js/main.js?v=6"></script>
 </body>
 </html>
 
