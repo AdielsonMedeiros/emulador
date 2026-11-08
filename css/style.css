@@ -237,21 +237,22 @@ main {
   color: var(--text-main);
 }
 
-/* Platform Chips (Horizontal Scroll on Mobile) */
-.chips-wrapper {
-  position: relative;
+/* Platform Chips Row with Left / Right Scroll Buttons */
+.chips-row {
   display: flex;
   align-items: center;
+  gap: 8px;
   width: 100%;
 }
 
 .platform-chips {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   gap: 8px;
   overflow-x: auto;
   scroll-behavior: smooth;
   padding: 4px 0;
-  width: 100%;
   scrollbar-width: none;
   -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
@@ -261,43 +262,41 @@ main {
   display: none;
 }
 
-.chip-nav-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
+.chip-arrow-btn {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: rgba(26, 29, 46, 0.94);
+  background: var(--bg-card);
   border: 1px solid var(--border);
   color: var(--text-main);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 10;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: opacity 0.2s, background-color 0.2s, border-color 0.2s, transform 0.1s;
+  transition: all 0.2s;
+  user-select: none;
+  -webkit-user-select: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.chip-nav-btn:hover {
+.chip-arrow-btn:hover:not(:disabled) {
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;
+  transform: scale(1.06);
 }
 
-.chip-nav-btn:active {
-  transform: translateY(-50%) scale(0.92);
+.chip-arrow-btn:active:not(:disabled) {
+  transform: scale(0.94);
 }
 
-.chip-nav-left {
-  left: 0;
-}
-
-.chip-nav-right {
-  right: 0;
+.chip-arrow-btn:disabled,
+.chip-arrow-btn.disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
 }
 
 .chip {
@@ -765,79 +764,312 @@ main {
   display: none !important;
 }
 
-/* In-Game Floating HUD */
-.in-game-hud {
-  position: fixed;
-  top: 12px;
-  left: 12px;
-  right: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 10000005;
-  pointer-events: none;
+/* Native Hamburger Button Restored & Styled */
+.ejs_virtualGamepad_open {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: absolute !important;
+  top: max(10px, env(safe-area-inset-top)) !important;
+  right: max(10px, env(safe-area-inset-right)) !important;
+  width: 40px !important;
+  height: 40px !important;
+  background: rgba(22, 26, 43, 0.88) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  color: #fff !important;
+  opacity: 0.9 !important;
+  z-index: 1000 !important;
+  cursor: pointer !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
+  padding: 8px !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s !important;
 }
 
-.hud-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.ejs_virtualGamepad_open:hover,
+.ejs_virtualGamepad_open:active {
+  opacity: 1 !important;
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  transform: scale(0.95) !important;
 }
 
-.hud-btn {
-  pointer-events: auto;
-  background: rgba(22, 26, 43, 0.88);
-  border: 1px solid var(--border);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  padding: 8px 14px;
-  border-radius: 20px;
-  cursor: pointer;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
-  transition: all 0.2s;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
+.ejs_virtualGamepad_open svg {
+  width: 100% !important;
+  height: 100% !important;
+  fill: currentColor !important;
 }
 
-.hud-btn:active {
-  transform: scale(0.95);
+/* Dim backdrop for centered menu */
+#ejs-menu-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  z-index: 13999999 !important;
+  transition: opacity 0.2s ease !important;
 }
 
-.hud-exit {
-  background: rgba(239, 68, 68, 0.22);
-  border-color: rgba(239, 68, 68, 0.5);
-  color: #fca5a5;
-}
-
-.hud-exit:hover, .hud-exit:active {
-  background: rgba(239, 68, 68, 0.45);
-  color: #fff;
-}
-
-.hud-menu {
-  background: rgba(99, 102, 241, 0.25);
-  border-color: rgba(99, 102, 241, 0.6);
-  color: #e0e7ff;
-}
-
-.hud-menu:hover, .hud-menu:active {
-  background: var(--accent);
-  color: #fff;
-}
-
-/* Hide EmulatorJS confusing native bottom bar and faint hamburger button */
-.ejs_virtualGamepad_open,
-.ejs_menu_bar,
-.ejs_context_menu {
+#ejs-menu-backdrop.hidden {
   display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Native EmulatorJS Menu Bar - Centered Floating Dashboard */
+.ejs_menu_bar,
+.ejs_small_screen .ejs_menu_bar {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  bottom: auto !important;
+  right: auto !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(390px, 92vw) !important;
+  max-height: 84vh !important;
+  max-height: 84dvh !important;
+  background: rgba(18, 20, 32, 0.97) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 20px !important;
+  padding: 18px !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85) !important;
+  z-index: 14000000 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 10px !important;
+  box-sizing: border-box !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.ejs_menu_bar.ejs_menu_bar_hidden,
+.ejs_small_screen .ejs_menu_bar_hidden {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translate(-50%, -46%) scale(0.96) !important;
+}
+
+/* Header inside centered menu bar */
+.ejs_menu_header {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding-bottom: 12px !important;
+  margin-bottom: 2px !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.ejs_menu_header_title {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #fff !important;
+  letter-spacing: 0.5px !important;
+}
+
+.ejs_menu_header_close {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-muted) !important;
+  font-size: 24px !important;
+  cursor: pointer !important;
+  line-height: 1 !important;
+  padding: 2px 6px !important;
+  min-width: unset !important;
+  min-height: unset !important;
+}
+
+.ejs_menu_header_close:hover {
+  color: #fff !important;
+}
+
+/* Custom Injected Action Section (Control Type & Auto-Fire) */
+.ejs_menu_custom_section {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 4px 0 !important;
+  border-bottom: 1px solid var(--border) !important;
+  margin-bottom: 4px !important;
+}
+
+.ejs_menu_custom_action_btn {
+  width: 100% !important;
+  min-width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 10px 14px !important;
+  background: rgba(30, 34, 53, 0.95) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  color: var(--text-main) !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+
+.ejs_menu_custom_action_btn:hover {
+  background: rgba(99, 102, 241, 0.15) !important;
+  border-color: var(--accent) !important;
+}
+
+.ejs_menu_custom_action_btn.active {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: #10b981 !important;
+}
+
+.ejs_menu_custom_action_btn svg {
+  flex-shrink: 0 !important;
+  width: 20px !important;
+  height: 20px !important;
+  color: var(--accent) !important;
+}
+
+.ejs_menu_custom_action_btn.active svg {
+  color: #10b981 !important;
+}
+
+.ejs_menu_custom_action_btn .custom-action-texts {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  text-align: left !important;
+}
+
+.ejs_menu_custom_action_btn .custom-action-label {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #fff !important;
+}
+
+.ejs_menu_custom_action_btn .custom-action-sub {
+  font-size: 11px !important;
+  color: var(--text-muted) !important;
+}
+
+/* Native Tool Buttons inside centered menu */
+.ejs_menu_bar .ejs_menu_button,
+.ejs_small_screen .ejs_menu_button {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+  padding: 8px 6px !important;
+  color: var(--text-main) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  min-width: 72px !important;
+  min-height: 54px !important;
+  flex: 1 1 72px !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  box-sizing: border-box !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+.ejs_menu_bar .ejs_menu_button:hover,
+.ejs_menu_bar .ejs_menu_button:active {
+  background: rgba(99, 102, 241, 0.2) !important;
+  border-color: var(--accent) !important;
+  color: #fff !important;
+  transform: scale(0.97) !important;
+}
+
+.ejs_menu_bar .ejs_menu_button svg,
+.ejs_small_screen .ejs_menu_button svg {
+  float: none !important;
+  width: 18px !important;
+  height: 18px !important;
+  fill: currentColor !important;
+}
+
+.ejs_menu_bar .ejs_menu_button span,
+.ejs_small_screen .ejs_menu_text {
+  position: static !important;
+  transform: none !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+}
+
+.ejs_menu_bar .ejs_menu_exit_btn {
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  color: #fca5a5 !important;
+}
+
+.ejs_menu_bar .ejs_menu_exit_btn:hover {
+  background: rgba(239, 68, 68, 0.25) !important;
+  border-color: #ef4444 !important;
+  color: #fff !important;
+}
+
+/* Volume Slider inside Menu */
+.ejs_menu_bar .ejs_volume_parent,
+.ejs_small_screen .ejs_volume_parent,
+.ejs_menu_bar .ejs_menu_volume_container {
+  width: 100% !important;
+  min-width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 6px 12px !important;
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+  box-sizing: border-box !important;
+}
+
+.ejs_menu_bar .ejs_volume_parent input[type="range"],
+.ejs_menu_bar .ejs_menu_volume_slider {
+  flex: 1 1 auto !important;
+  accent-color: var(--accent) !important;
+  cursor: pointer !important;
+}
+
+/* Bottom close button inside menu */
+.ejs_menu_bottom_close {
+  width: 100% !important;
+  min-width: 100% !important;
+  padding: 12px !important;
+  margin-top: 6px !important;
+  background: var(--accent) !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  border-radius: 12px !important;
+  border: none !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: opacity 0.2s, transform 0.1s !important;
+}
+
+.ejs_menu_bottom_close:active {
+  transform: scale(0.98) !important;
+  opacity: 0.9 !important;
 }
 
 /* Fix for EmulatorJS Popups on Mobile (Control Settings, Cache Manager, etc.) */
@@ -975,13 +1207,21 @@ main {
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(239, 68, 68, 0.9);
+  background: rgba(16, 185, 129, 0.95);
   color: #fff;
   padding: 10px 20px;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
   z-index: 30000000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), 0 0 12px rgba(16, 185, 129, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.toast.toast-error {
+  background: rgba(239, 68, 68, 0.95);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), 0 0 12px rgba(239, 68, 68, 0.35);
 }
 

@@ -11,7 +11,7 @@
   <meta http-equiv="Expires" content="0">
   <link rel="manifest" href="manifest.webmanifest">
   <title>Retro NFC Touch - Web Player</title>
-  <link rel="stylesheet" href="css/style.css?v=10">
+  <link rel="stylesheet" href="css/style.css?v=15">
 </head>
 <body>
 
@@ -58,13 +58,13 @@
           <input type="text" id="search-input" class="search-input" placeholder="Buscar por titulo, genero, ano..." autocomplete="off">
           <button id="search-clear" class="search-clear hidden" aria-label="Limpar busca">&times;</button>
         </div>
-        <div class="chips-wrapper">
-          <button type="button" id="btn-scroll-chips-left" class="chip-nav-btn chip-nav-left hidden" aria-label="Rolar para esquerda">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        <div class="chips-row">
+          <button type="button" id="btn-scroll-chips-left" class="chip-arrow-btn" aria-label="Rolar para esquerda" title="Rolar para esquerda" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
           </button>
           <div id="platform-chips" class="platform-chips"></div>
-          <button type="button" id="btn-scroll-chips-right" class="chip-nav-btn chip-nav-right hidden" aria-label="Rolar para direita">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          <button type="button" id="btn-scroll-chips-right" class="chip-arrow-btn" aria-label="Rolar para direita" title="Rolar para direita">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </button>
         </div>
       </div>
@@ -221,28 +221,9 @@
 
   <!-- Fullscreen Emulator Container -->
   <div id="emulator-viewport">
-    <div id="in-game-hud" class="in-game-hud hidden">
-      <button type="button" id="btn-in-game-exit" class="hud-btn hud-exit" aria-label="Sair para o Catalogo">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-        <span>SAIR</span>
-      </button>
-
-      <div class="hud-actions">
-        <button type="button" id="btn-in-game-menu" class="hud-btn hud-menu" aria-label="Menu e Configuracoes">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-          </svg>
-          <span>MENU</span>
-        </button>
-      </div>
-    </div>
     <div id="game-frame"></div>
   </div>
 
-  <script type="module" src="js/main.js?v=12"></script>
+  <script type="module" src="js/main.js?v=15"></script>
 </body>
 </html>

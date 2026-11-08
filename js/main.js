@@ -1,8 +1,8 @@
-import { GameService } from "./services/game-service.js";
-import { EmulatorEngine } from "./core/engine.js";
-import { SettingsModule } from "./modules/settings.js";
-import { CatalogModule } from "./modules/catalog.js";
-import { Router } from "./modules/router.js";
+import { GameService } from "./services/game-service.js?v=15";
+import { EmulatorEngine } from "./core/engine.js?v=15";
+import { SettingsModule } from "./modules/settings.js?v=15";
+import { CatalogModule } from "./modules/catalog.js?v=15";
+import { Router } from "./modules/router.js?v=15";
 
 class App {
   constructor() {
@@ -15,28 +15,15 @@ class App {
 
     this.cardView = document.getElementById("game-card");
     this.catalogView = document.getElementById("catalog-view");
-    this.inGameHud = document.getElementById("in-game-hud");
-    this.btnInGameExit = document.getElementById("btn-in-game-exit");
-    this.btnInGameMenu = document.getElementById("btn-in-game-menu");
     this.games = [];
 
     this.settings.setEngine(this.engine, () => this.exitGameToCatalog());
-    this.initInGameControls();
+    this.engine.setOnExit(() => this.exitGameToCatalog());
     this.init();
-  }
-
-  initInGameControls() {
-    if (this.btnInGameExit) {
-      this.btnInGameExit.addEventListener("click", () => this.exitGameToCatalog());
-    }
-    if (this.btnInGameMenu) {
-      this.btnInGameMenu.addEventListener("click", () => this.settings.open());
-    }
   }
 
   exitGameToCatalog() {
     this.engine.stop();
-    if (this.inGameHud) this.inGameHud.classList.add("hidden");
     this.settings.setInGameMode(false);
     this.showCatalog();
     Router.navigateToCatalog();
@@ -93,7 +80,6 @@ class App {
     btnLaunch.onclick = () => {
       this.cardView.classList.add("hidden");
       this.catalogView.classList.add("hidden");
-      if (this.inGameHud) this.inGameHud.classList.remove("hidden");
       this.settings.setInGameMode(true);
       this.engine.launch(game, this.settings.getControlType(), this.settings.getAutoFire());
     };

@@ -27,7 +27,7 @@ export class CatalogModule {
   setupChipsScroll() {
     if (!this.platformChips || !this.btnScrollLeft || !this.btnScrollRight) return;
 
-    const scrollStep = 200;
+    const scrollStep = 240;
 
     this.btnScrollLeft.addEventListener("click", () => {
       this.platformChips.scrollBy({ left: -scrollStep, behavior: "smooth" });
@@ -39,17 +39,35 @@ export class CatalogModule {
 
     this.platformChips.addEventListener("scroll", () => this.updateScrollButtons(), { passive: true });
     window.addEventListener("resize", () => this.updateScrollButtons());
+
+    if (typeof ResizeObserver !== "undefined") {
+      this.chipsResizeObserver = new ResizeObserver(() => this.updateScrollButtons());
+      this.chipsResizeObserver.observe(this.platformChips);
+    }
+
+    setTimeout(() => this.updateScrollButtons(), 60);
   }
 
   updateScrollButtons() {
     if (!this.platformChips || !this.btnScrollLeft || !this.btnScrollRight) return;
 
     const { scrollLeft, scrollWidth, clientWidth } = this.platformChips;
+    const hasOverflow = scrollWidth > clientWidth + 4;
+
+    if (!hasOverflow) {
+      this.btnScrollLeft.style.display = "none";
+      this.btnScrollRight.style.display = "none";
+      return;
+    }
+
+    this.btnScrollLeft.style.display = "flex";
+    this.btnScrollRight.style.display = "flex";
+
     const canScrollLeft = scrollLeft > 6;
     const canScrollRight = scrollLeft + clientWidth < scrollWidth - 6;
 
-    this.btnScrollLeft.classList.toggle("hidden", !canScrollLeft);
-    this.btnScrollRight.classList.toggle("hidden", !canScrollRight);
+    this.btnScrollLeft.disabled = !canScrollLeft;
+    this.btnScrollRight.disabled = !canScrollRight;
   }
 
   setupSearch() {

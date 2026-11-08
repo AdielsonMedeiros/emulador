@@ -64,8 +64,181 @@ export class EmulatorEngine {
     this.autoFire = new AutoFireManager();
     this.currentGame = null;
     this.currentControlType = null;
+    this.onExitCallback = null;
 
     initEmulatorPopupFix();
+  }
+
+  setOnExit(fn) {
+    this.onExitCallback = fn;
+  }
+
+  setupEmulatorMenu(emulator) {
+    if (!emulator || !emulator.elements || !emulator.elements.menu) return;
+
+    const menuEl = emulator.elements.menu;
+    if (menuEl.dataset.customEnhanced === "true") return;
+    menuEl.dataset.customEnhanced = "true";
+
+    let backdrop = document.getElementById("ejs-menu-backdrop");
+    if (!backdrop) {
+      backdrop = document.createElement("div");
+      backdrop.id = "ejs-menu-backdrop";
+      backdrop.className = "ejs_menu_backdrop hidden";
+      backdrop.addEventListener("click", () => {
+        if (emulator.menu) emulator.menu.close();
+      });
+      document.body.appendChild(backdrop);
+    }
+
+    if (emulator.menu) {
+      emulator.menu.open = (force) => {
+        if (!emulator.started && force !== true) return;
+        menuEl.classList.remove("ejs_menu_bar_hidden");
+        backdrop.classList.remove("hidden");
+      };
+
+      emulator.menu.close = () => {
+        menuEl.classList.add("ejs_menu_bar_hidden");
+        backdrop.classList.add("hidden");
+      };
+
+      emulator.menu.toggle = () => {
+        if (!emulator.started) return;
+        const willOpen = menuEl.classList.contains("ejs_menu_bar_hidden");
+        if (willOpen) {
+          emulator.menu.open();
+        } else {
+          emulator.menu.close();
+        }
+      };
+    }
+
+    if (emulator.elements.parent) {
+      const hamburger = emulator.elements.parent.querySelector(".ejs_virtualGamepad_open");
+      if (hamburger) {
+        hamburger.style.display = "flex";
+        hamburger.style.opacity = "1";
+      }
+    }
+
+    let header = menuEl.querySelector(".ejs_menu_header");
+    if (!header) {
+      header = document.createElement("div");
+      header.className = "ejs_menu_header";
+      header.innerHTML = `
+        <div class="ejs_menu_header_title">Menu do Jogo</div>
+        <button type="button" class="ejs_menu_header_close" aria-label="Fechar">&times;</button>
+      `;
+      header.querySelector(".ejs_menu_header_close").addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (emulator.menu) emulator.menu.close();
+      });
+      menuEl.insertBefore(header, menuEl.firstChild);
+    }
+
+    let customSection = menuEl.querySelector(".ejs_menu_custom_section");
+    if (!customSection) {
+      customSection = document.createElement("div");
+      customSection.className = "ejs_menu_custom_section";
+
+      const btnControl = document.createElement("button");
+      btnControl.type = "button";
+      btnControl.className = "ejs_menu_custom_action_btn";
+      btnControl.id = "ejs-custom-control-btn";
+
+      const renderControlBtn = () => {
+        const isAnalog = this.currentControlType === "analog";
+        btnControl.classList.toggle("active", isAnalog);
+        btnControl.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+          <div class="custom-action-texts">
+            <span class="custom-action-label">Controle Touch: <strong>${isAnalog ? "Analógico (360)" : "D-Pad Clássico"}</strong></span>
+            <span class="custom-action-sub">Toque para alternar para ${isAnalog ? "D-Pad Clássico" : "Analógico (360)"}</span>
+          </div>
+        `;
+      };
+      renderControlBtn();
+
+      btnControl.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const next = this.currentControlType === "analog" ? "dpad" : "analog";
+        localStorage.setItem("retro_control_type", next);
+        this.switchControlType(next);
+        if (emulator.menu) emulator.menu.close();
+      });
+
+      const btnTurbo = document.createElement("button");
+      btnTurbo.type = "button";
+      btnTurbo.className = "ejs_menu_custom_action_btn";
+      btnTurbo.id = "ejs-custom-turbo-btn";
+
+      const renderTurboBtn = () => {
+        const isEnabled = this.autoFire.enabled;
+        btnTurbo.classList.toggle("active", isEnabled);
+        btnTurbo.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          <div class="custom-action-texts">
+            <span class="custom-action-label">Auto-Fire Turbo: <strong>${isEnabled ? "ATIVADO (22Hz)" : "DESATIVADO"}</strong></span>
+            <span class="custom-action-sub">${isEnabled ? "Segurar botão dispara rajadas contínuas" : "Toque normal dos botões de ação"}</span>
+          </div>
+        `;
+      };
+      renderTurboBtn();
+
+      btnTurbo.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const next = !this.autoFire.enabled;
+        this.autoFire.setEnabled(next);
+        localStorage.setItem("retro_autofire", String(next));
+        renderTurboBtn();
+      });
+
+      customSection.appendChild(btnControl);
+      customSection.appendChild(btnTurbo);
+
+      if (header.nextSibling) {
+        menuEl.insertBefore(customSection, header.nextSibling);
+      } else {
+        menuEl.appendChild(customSection);
+      }
+    }
+
+    let bottomClose = menuEl.querySelector(".ejs_menu_bottom_close");
+    if (!bottomClose) {
+      bottomClose = document.createElement("button");
+      bottomClose.type = "button";
+      bottomClose.className = "ejs_menu_bottom_close";
+      bottomClose.textContent = "Voltar ao Jogo";
+      bottomClose.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (emulator.menu) emulator.menu.close();
+      });
+      menuEl.appendChild(bottomClose);
+    }
+
+    emulator.on("exit", () => {
+      if (typeof this.onExitCallback === "function") {
+        this.onExitCallback();
+      }
+    });
+
+    const exitBtns = Array.from(menuEl.querySelectorAll("button")).filter(
+      (b) => b.textContent && (b.textContent.includes("Exit Emulation") || b.textContent.includes("Exit"))
+    );
+    exitBtns.forEach((btn) => {
+      btn.classList.add("ejs_menu_exit_btn");
+    });
   }
 
   launch(game, controlType, autoFireEnabled) {
@@ -115,6 +288,21 @@ export class EmulatorEngine {
       delete window.EJS_VirtualGamepadSettings;
     }
 
+    window.EJS_ready = () => {
+      this.setupEmulatorMenu(window.EJS_emulator);
+    };
+    window.EJS_onGameStart = () => {
+      this.setupEmulatorMenu(window.EJS_emulator);
+    };
+
+    const checkInterval = setInterval(() => {
+      if (window.EJS_emulator && window.EJS_emulator.elements && window.EJS_emulator.elements.menu) {
+        this.setupEmulatorMenu(window.EJS_emulator);
+        clearInterval(checkInterval);
+      }
+    }, 200);
+    setTimeout(() => clearInterval(checkInterval), 15000);
+
     const oldScript = document.getElementById("emulatorjs-loader");
     if (oldScript) oldScript.remove();
 
@@ -128,11 +316,16 @@ export class EmulatorEngine {
   switchControlType(newControlType) {
     if (!this.currentGame) return;
     this.quickSave();
+    this.currentControlType = newControlType;
+    localStorage.setItem("retro_control_type", newControlType);
     this.launch(this.currentGame, newControlType, this.autoFire.enabled);
   }
 
   stop() {
     this.autoFire.stop();
+    const backdrop = document.getElementById("ejs-menu-backdrop");
+    if (backdrop) backdrop.remove();
+
     if (window.EJS_emulator) {
       try {
         if (typeof window.EJS_emulator.pause === "function") {
@@ -154,6 +347,8 @@ export class EmulatorEngine {
     }
 
     delete window.EJS_emulator;
+    delete window.EJS_ready;
+    delete window.EJS_onGameStart;
     const oldScript = document.getElementById("emulatorjs-loader");
     if (oldScript) oldScript.remove();
   }
