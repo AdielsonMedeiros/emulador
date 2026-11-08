@@ -119,14 +119,25 @@ export class EmulatorEngine {
           (e) => {
             if (
               ("ontouchstart" in window || navigator.maxTouchPoints > 0) &&
-              !e.target.closest(".ejs_virtualGamepad_open") &&
-              !e.target.closest(".ejs_menu_bar") &&
-              !e.target.closest(".ejs_popup")
+              e.target &&
+              e.target.tagName === "CANVAS"
             ) {
               e.stopImmediatePropagation();
             }
           },
           true
+        );
+
+        this.targetElement.addEventListener(
+          "touchend",
+          (e) => {
+            const btn = e.target && e.target.closest && e.target.closest(".ejs_button");
+            if (btn) {
+              btn.click();
+              e.preventDefault();
+            }
+          },
+          { passive: false }
         );
 
         this.mouseGuardsAttached = true;
