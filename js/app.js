@@ -34,7 +34,7 @@ class EmulatorApp {
 
   async init() {
     try {
-      const response = await fetch("data/games.json");
+      const response = await fetch(`data/games.json?t=${Date.now()}`, { cache: "no-store" });
       if (!response.ok) {
         throw new Error(`Falha ao carregar games.json: ${response.statusText}`);
       }
