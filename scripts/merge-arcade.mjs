@@ -46,11 +46,20 @@ function mergeArcadeRom() {
     // 2. Extrai a BIOS moderna sobre a pasta temporaria (garante que os arquivos da BIOS atualizados sobrescrevam os legados)
     execFileSync("tar", ["-xf", biosPath, "-C", TEMP_DIR]);
 
-    // Remove arquivos de propaganda ou extensoes obsoletas
-    const filesToPurge = ["downloaded.from.WWW.ROMNATION.NET.html", "sfix.sfx"];
+    // Remove arquivos de propaganda
+    const filesToPurge = ["downloaded.from.WWW.ROMNATION.NET.html"];
     for (const f of filesToPurge) {
       const p = path.join(TEMP_DIR, f);
       if (fs.existsSync(p)) fs.unlinkSync(p);
+    }
+
+    // Garante compatibilidade tanto com FBNeo (sfix.sfix) quanto com MAME (sfix.sfx)
+    const sfixFix = path.join(TEMP_DIR, "sfix.sfix");
+    const sfixSfx = path.join(TEMP_DIR, "sfix.sfx");
+    if (fs.existsSync(sfixFix) && !fs.existsSync(sfixSfx)) {
+      fs.copyFileSync(sfixFix, sfixSfx);
+    } else if (fs.existsSync(sfixSfx) && !fs.existsSync(sfixFix)) {
+      fs.copyFileSync(sfixSfx, sfixFix);
     }
 
     // 3. Compacta tudo de volta no arquivo de destino como Non-Merged Set sem prefixo './'
