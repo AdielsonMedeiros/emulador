@@ -11,7 +11,7 @@
   <meta http-equiv="Expires" content="0">
   <link rel="manifest" href="manifest.webmanifest">
   <title>Retro NFC Touch - Web Player</title>
-  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body>
 
@@ -20,6 +20,12 @@
       <span class="logo-badge">NFC TOUCH</span>
       <span class="logo-title">RETRO CART</span>
     </a>
+    <button id="btn-open-settings" class="btn-header" aria-label="Configuracoes">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
   </header>
 
   <main>
@@ -68,12 +74,44 @@
     </section>
   </main>
 
+  <!-- Modal de Configuracoes -->
+  <div id="settings-modal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Configuracoes</h3>
+        <button id="btn-close-settings" class="modal-close" aria-label="Fechar">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-group">
+          <label class="setting-label">Controle Direcional Touch (Celular)</label>
+          <p class="setting-desc">Escolha como prefere controlar os jogos na tela de toque.</p>
+          <div class="setting-radios">
+            <label class="radio-card">
+              <input type="radio" name="control-type" value="dpad">
+              <div class="radio-content">
+                <span class="radio-title">D-Pad Classico</span>
+                <span class="radio-desc">Direcional em formato de cruz tradicional.</span>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="control-type" value="analog">
+              <div class="radio-content">
+                <span class="radio-title">Analogico (Joystick 360)</span>
+                <span class="radio-desc">Alavanca virtual deslizante estilo manche.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Fullscreen Emulator Container -->
   <div id="emulator-viewport">
     <div id="game-frame"></div>
   </div>
 
-  <script src="js/app.js?v=3"></script>
+  <script src="js/app.js?v=4"></script>
 </body>
 </html>
 

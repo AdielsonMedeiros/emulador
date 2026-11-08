@@ -25,6 +25,7 @@ class EmulatorApp {
     this.currentGame = null;
     this.selectedPlatform = "ALL";
     this.searchQuery = "";
+    this.controlType = localStorage.getItem("retro_control_type") || "dpad";
 
     this.cardView = document.getElementById("game-card");
     this.catalogView = document.getElementById("catalog-view");
@@ -38,6 +39,10 @@ class EmulatorApp {
     this.catalogGrid = document.getElementById("catalog-grid");
     this.emptyState = document.getElementById("empty-state");
 
+    this.settingsModal = document.getElementById("settings-modal");
+    this.btnOpenSettings = document.getElementById("btn-open-settings");
+    this.btnCloseSettings = document.getElementById("btn-close-settings");
+
     this.init();
   }
 
@@ -50,13 +55,46 @@ class EmulatorApp {
       const data = await response.json();
       this.games = data.games || [];
 
+      this.setupSettingsModal();
       this.setupFilters();
       this.handleRoute();
       window.addEventListener("hashchange", () => this.handleRoute());
       window.addEventListener("popstate", () => this.handleRoute());
     } catch (err) {
-      this.showToast(`Erro de inicialização: ${err.message}`);
+      this.showToast(`Erro de inicializacao: ${err.message}`);
     }
+  }
+
+  setupSettingsModal() {
+    if (this.btnOpenSettings && this.settingsModal) {
+      this.btnOpenSettings.addEventListener("click", () => {
+        this.settingsModal.classList.remove("hidden");
+      });
+    }
+
+    if (this.btnCloseSettings && this.settingsModal) {
+      this.btnCloseSettings.addEventListener("click", () => {
+        this.settingsModal.classList.add("hidden");
+      });
+    }
+
+    if (this.settingsModal) {
+      this.settingsModal.addEventListener("click", (e) => {
+        if (e.target === this.settingsModal) {
+          this.settingsModal.classList.add("hidden");
+        }
+      });
+    }
+
+    const currentRadio = document.querySelector(`input[name="control-type"][value="${this.controlType}"]`);
+    if (currentRadio) currentRadio.checked = true;
+
+    document.querySelectorAll('input[name="control-type"]').forEach((input) => {
+      input.addEventListener("change", (e) => {
+        this.controlType = e.target.value;
+        localStorage.setItem("retro_control_type", this.controlType);
+      });
+    });
   }
 
   setupFilters() {
@@ -259,6 +297,13 @@ class EmulatorApp {
       window.EJS_sampleRate = 44100;
       window.EJS_volume = 1.0;
 
+      // 4.1 Controle Analogico se configurado
+      if (this.controlType === "analog" && game.core !== "n64") {
+        window.EJS_VirtualGamepadSettings = this.getAnalogGamepadSettings(game.core);
+      } else if (game.core !== "n64") {
+        delete window.EJS_VirtualGamepadSettings;
+      }
+
       // 5. Injeção do Loader Wasm
       const script = document.createElement("script");
       script.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
@@ -280,6 +325,41 @@ class EmulatorApp {
         ctx.resume();
       }
     }
+  }
+
+  getAnalogGamepadSettings(core) {
+    if (core === "segaMD") {
+      return [
+        { type: "button", text: "C", id: "c", location: "right", top: 40, left: 80, bold: true, input_value: 8 },
+        { type: "button", text: "B", id: "b", location: "right", top: 80, left: 40, bold: true, input_value: 1 },
+        { type: "button", text: "A", id: "a", location: "right", top: 40, bold: true, input_value: 0 },
+        { type: "zone", id: "stick", location: "left", left: "50%", top: "50%", joystickInput: true, inputValues: [4, 5, 6, 7] },
+        { type: "button", text: "Start", id: "start", location: "center", left: 30, fontSize: 15, block: true, input_value: 3 }
+      ];
+    }
+
+    if (core === "gb") {
+      return [
+        { type: "button", text: "A", id: "a", location: "right", left: 81, top: 40, bold: true, input_value: 8 },
+        { type: "button", text: "B", id: "b", location: "right", left: 10, top: 70, bold: true, input_value: 0 },
+        { type: "zone", id: "stick", location: "left", left: "50%", top: "50%", joystickInput: true, inputValues: [4, 5, 6, 7] },
+        { type: "button", text: "Start", id: "start", location: "center", left: 60, fontSize: 15, block: true, input_value: 3 },
+        { type: "button", text: "Select", id: "select", location: "center", left: -5, fontSize: 15, block: true, input_value: 2 }
+      ];
+    }
+
+    // Default SNES
+    return [
+      { type: "button", text: "X", id: "x", location: "right", left: 40, bold: true, input_value: 9 },
+      { type: "button", text: "Y", id: "y", location: "right", top: 40, bold: true, input_value: 0 },
+      { type: "button", text: "B", id: "b", location: "right", top: 80, left: 40, bold: true, input_value: 1 },
+      { type: "button", text: "A", id: "a", location: "right", top: 40, left: 80, bold: true, input_value: 8 },
+      { type: "zone", id: "stick", location: "left", left: "50%", top: "50%", joystickInput: true, inputValues: [4, 5, 6, 7] },
+      { type: "button", text: "Start", id: "start", location: "center", left: 60, fontSize: 15, block: true, input_value: 3 },
+      { type: "button", text: "Select", id: "select", location: "center", left: -5, fontSize: 15, block: true, input_value: 2 },
+      { type: "button", text: "L", id: "l", location: "left", left: 3, top: -90, bold: true, block: true, input_value: 10 },
+      { type: "button", text: "R", id: "r", location: "right", right: 3, top: -90, bold: true, block: true, input_value: 11 }
+    ];
   }
 
   showToast(message) {
