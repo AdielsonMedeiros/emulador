@@ -607,7 +607,10 @@ main {
 }
 
 /* Gatilhos L e R (Ombro) */
-.ejs_virtualGamepad_top .ejs_virtualGamepad_button {
+.ejs_virtualGamepad_top .ejs_virtualGamepad_button,
+.b_l,
+.b_r,
+.b_z {
   border-radius: 8px !important;
   width: 58px !important;
   height: 38px !important;
@@ -617,13 +620,22 @@ main {
 }
 
 .ejs_virtualGamepad_top .ejs_virtualGamepad_button:active,
-.ejs_virtualGamepad_top .ejs_virtualGamepad_button.ejs_virtualGamepad_button_down {
+.ejs_virtualGamepad_top .ejs_virtualGamepad_button.ejs_virtualGamepad_button_down,
+.b_l:active,
+.b_l.ejs_virtualGamepad_button_down,
+.b_r:active,
+.b_r.ejs_virtualGamepad_button_down,
+.b_z:active,
+.b_z.ejs_virtualGamepad_button_down {
   transform: translateY(2px) scale(0.95) !important;
   box-shadow: 0 1px 0 #0d0f17, inset 0 2px 5px rgba(0, 0, 0, 0.85) !important;
 }
 
 /* Start e Select (Inferior) */
-.ejs_virtualGamepad_bottom .ejs_virtualGamepad_button {
+.ejs_virtualGamepad_bottom .ejs_virtualGamepad_button,
+.b_start,
+.b_select,
+.b_mode {
   border-radius: 12px !important;
   height: 24px !important;
   line-height: 24px !important;
@@ -632,9 +644,60 @@ main {
 }
 
 .ejs_virtualGamepad_bottom .ejs_virtualGamepad_button:active,
-.ejs_virtualGamepad_bottom .ejs_virtualGamepad_button.ejs_virtualGamepad_button_down {
+.ejs_virtualGamepad_bottom .ejs_virtualGamepad_button.ejs_virtualGamepad_button_down,
+.b_start:active,
+.b_start.ejs_virtualGamepad_button_down,
+.b_select:active,
+.b_select.ejs_virtualGamepad_button_down,
+.b_mode:active,
+.b_mode.ejs_virtualGamepad_button_down {
   transform: translateY(2px) scale(0.96) !important;
   box-shadow: 0 1px 0 #0d0f17, inset 0 2px 4px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Container de Ancoragem do Stick Analogico */
+.ejs_virtualGamepad_left > div,
+.ejs_virtualGamepad_left .b_stick {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  touch-action: none !important;
+}
+
+/* Base do Stick Analogico (Circulo Externo Estatico) */
+.nipple .back {
+  background: radial-gradient(circle, rgba(26, 29, 46, 0.45) 0%, rgba(15, 17, 26, 0.9) 100%) !important;
+  border: 2px solid rgba(99, 102, 241, 0.45) !important;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.25), inset 0 0 14px rgba(0, 0, 0, 0.8) !important;
+  opacity: 0.88 !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Puck / Manopla de Toque (Circulo Interno Tatil 3D) */
+.nipple .front {
+  background: radial-gradient(circle at 35% 35%, #2a2e45 0%, #141624 85%) !important;
+  border: 2px solid #6366f1 !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.85), inset 0 2px 3px rgba(255, 255, 255, 0.35) !important;
+  opacity: 0.95 !important;
+  transition: transform 0.03s linear !important;
+}
+
+/* Indicador Tatil Central no Puck */
+.nipple .front::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.35);
+  border: 1px solid rgba(99, 102, 241, 0.8);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 /* D-Pad (Direcional em Cruz) */

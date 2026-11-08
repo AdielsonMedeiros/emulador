@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { GameMatcher } from "../js/core/matcher.js";
 import { resolveAssetUrl, SafeStorage } from "../js/core/utils.js";
+import { getVirtualGamepadSettings } from "../js/core/gamepad-config.js";
 
 // Mock de catalogo para testes de unidade
 const mockGames = [
@@ -93,6 +94,73 @@ test("Integridade de Catalogo: todos os jogos em games.json possuem arquivos fis
 
     const coverPath = path.resolve(game.cover);
     assert.ok(fs.existsSync(coverPath), `Arquivo de capa nao encontrado no disco: ${game.cover}`);
+  }
+});
+
+function validateEmulatorJSLayout(layout) {
+  if (!Array.isArray(layout) || !layout.length) return false;
+  for (const item of layout) {
+    if (!item.type || !item.location) return false;
+    if (item.type === "zone" || item.type === "dpad") {
+      if (!Array.isArray(item.inputValues) || item.inputValues.length !== 4) return false;
+    } else if (item.type === "button") {
+      if (!item.id || item.input_value === undefined) return false;
+    }
+  }
+  return true;
+}
+
+test("GamepadConfig: configuracao calibrada para SNES (snes9x)", () => {
+  const layout = getVirtualGamepadSettings("snes9x");
+  assert.ok(validateEmulatorJSLayout(layout));
+  const stick = layout.find((i) => i.type === "zone");
+  assert.ok(stick);
+  assert.deepEqual(stick.inputValues, [4, 5, 6, 7]);
+  assert.equal(stick.joystickInput, false);
+
+  const buttonA = layout.find((i) => i.id === "a");
+  assert.equal(buttonA.input_value, 8);
+  const buttonB = layout.find((i) => i.id === "b");
+  assert.equal(buttonB.input_value, 0);
+});
+
+test("GamepadConfig: configuracao calibrada para Mega Drive (segaMD)", () => {
+  const layout = getVirtualGamepadSettings("segaMD");
+  assert.ok(validateEmulatorJSLayout(layout));
+  const stick = layout.find((i) => i.type === "zone");
+  assert.ok(stick);
+  assert.deepEqual(stick.inputValues, [4, 5, 6, 7]);
+  assert.equal(stick.joystickInput, false);
+
+  // 6 botoes de acao (A, B, C, X, Y, Z)
+  for (const id of ["a", "b", "c", "x", "y", "z"]) {
+    assert.ok(layout.find((i) => i.id === id), `Botao ${id} ausente no Mega Drive`);
+  }
+});
+
+test("GamepadConfig: configuracao calibrada para GBA e Game Boy", () => {
+  const layoutGBA = getVirtualGamepadSettings("mgba");
+  assert.ok(validateEmulatorJSLayout(layoutGBA));
+  const stickGBA = layoutGBA.find((i) => i.type === "zone");
+  assert.deepEqual(stickGBA.inputValues, [4, 5, 6, 7]);
+
+  const layoutGB = getVirtualGamepadSettings("gb");
+  assert.ok(validateEmulatorJSLayout(layoutGB));
+  const stickGB = layoutGB.find((i) => i.type === "zone");
+  assert.deepEqual(stickGB.inputValues, [4, 5, 6, 7]);
+});
+
+test("GamepadConfig: configuracao de eixo analogico continuo para N64", () => {
+  const layout = getVirtualGamepadSettings("n64");
+  assert.ok(validateEmulatorJSLayout(layout));
+  const stick = layout.find((i) => i.type === "zone");
+  assert.ok(stick);
+  assert.deepEqual(stick.inputValues, [16, 17, 18, 19]);
+  assert.equal(stick.joystickInput, true);
+
+  // C-buttons
+  for (const id of ["cu", "cd", "cl", "cr"]) {
+    assert.ok(layout.find((i) => i.id === id), `C-button ${id} ausente no N64`);
   }
 });
 

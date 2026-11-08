@@ -1,5 +1,6 @@
 import { unlockAudioContext } from "./audio.js";
 import { resolveAssetUrl } from "./utils.js";
+import { getVirtualGamepadSettings } from "./gamepad-config.js";
 
 export class EmulatorEngine {
   constructor(viewportElement, targetElement) {
@@ -16,7 +17,8 @@ export class EmulatorEngine {
             e.target &&
             (e.target.closest(".ejs_virtualGamepad_button") ||
               e.target.closest(".ejs_dpad_main") ||
-              e.target.closest(".ejs_dpad_bar"))
+              e.target.closest(".ejs_dpad_bar") ||
+              e.target.closest(".nipple"))
           ) {
             if (typeof navigator !== "undefined" && navigator.vibrate) {
               try {
@@ -68,6 +70,7 @@ export class EmulatorEngine {
       window.EJS_color = game.color || "#6366f1";
       window.EJS_startOnLoaded = true;
       window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
+      window.EJS_VirtualGamepadSettings = getVirtualGamepadSettings(game.core);
 
       window.EJS_threads = false;
       if (game.core === "n64") {
@@ -133,6 +136,7 @@ export class EmulatorEngine {
     }
 
     delete window.EJS_emulator;
+    delete window.EJS_VirtualGamepadSettings;
 
     if (typeof this.onExitCallback === "function") {
       this.onExitCallback();

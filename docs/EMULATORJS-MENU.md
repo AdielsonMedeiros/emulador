@@ -67,3 +67,4 @@
 13. **Settings (Configuracoes Gerais):**
     - **Metodo:** Abre popup `settingsMenu`.
     - **Conteudo:** Shaders graficos (CRT, Scanlines, xBRZ), Proporcao de Tela (4:3, 16:9), Fast Forward, Rewind e latencia de audio.
+
