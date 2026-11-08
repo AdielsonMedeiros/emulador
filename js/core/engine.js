@@ -1,6 +1,6 @@
-import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=37";
-import { resolveAssetUrl } from "./utils.js?v=37";
-import { getVirtualGamepadSettings } from "./gamepad-config.js?v=37";
+import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=38";
+import { resolveAssetUrl } from "./utils.js?v=38";
+import { getVirtualGamepadSettings } from "./gamepad-config.js?v=38";
 
 export function isAllowedInteractionTarget(target) {
   if (!target || typeof target.closest !== "function") return false;
@@ -99,7 +99,26 @@ export class EmulatorEngine {
       // No iOS WebKit, forcar core legado (WebGL 1.0) previne o vazamento de backing-store do compositor WebGL2
       window.EJS_forceLegacyCores = isIOS;
 
-      const isArcade = game.core === "fbneo" || game.core === "arcade";
+      const isArcade =
+        game.core === "fbneo" ||
+        game.core === "arcade" ||
+        game.core === "fbalpha2012_cps1" ||
+        game.core === "fbalpha2012_cps2";
+
+      if (isArcade) {
+        // Reduz a profundidade grafica de 32-bit para 16-bit (economiza 50% de VRAM de sprites)
+        // e calibra o clock de amostragem sonora para 22050 Hz
+        window.EJS_defaultOptions = {
+          "fbneo-allow-depth-32": "disabled",
+          "fbneo-samplerate": "22050",
+          "fbneo-sample-interpolation": "disabled",
+          "fbneo-fm-interpolation": "disabled",
+          "fbneo-hiscores": "disabled",
+          "fbneo-memcard-mode": "disabled"
+        };
+      } else {
+        delete window.EJS_defaultOptions;
+      }
 
       if (game.core === "n64") {
         window.EJS_webgl = true;

@@ -76,6 +76,8 @@ export function getVirtualGamepadSettings(core) {
         { fontSize: 20, type: "button", text: "CR", id: "cr", joystickInput: true, location: "right", left: 65, top: -25, input_value: 20 }
       ];
 
+    case "fbalpha2012_cps1":
+    case "fbalpha2012_cps2":
     case "fbneo":
     case "arcade":
     case "snes9x":

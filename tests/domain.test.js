@@ -165,20 +165,22 @@ test("GamepadConfig: configuracao de eixo analogico continuo para N64", () => {
   }
 });
 
-test("GamepadConfig: configuracao calibrada para Arcade (fbneo / arcade)", () => {
-  const layout = getVirtualGamepadSettings("fbneo");
-  assert.ok(validateEmulatorJSLayout(layout));
-  const stick = layout.find((i) => i.type === "zone");
-  assert.ok(stick);
-  assert.deepEqual(stick.inputValues, [4, 5, 6, 7]);
+test("GamepadConfig: configuracao calibrada para Arcade (fbneo / fbalpha2012 / arcade)", () => {
+  for (const core of ["fbneo", "fbalpha2012_cps1", "fbalpha2012_cps2", "arcade"]) {
+    const layout = getVirtualGamepadSettings(core);
+    assert.ok(validateEmulatorJSLayout(layout));
+    const stick = layout.find((i) => i.type === "zone");
+    assert.ok(stick);
+    assert.deepEqual(stick.inputValues, [4, 5, 6, 7]);
 
-  // Select e Start canonicos
-  assert.ok(layout.find((i) => i.id === "select" && i.text === "Select"));
-  assert.ok(layout.find((i) => i.id === "start" && i.text === "Start"));
+    // Select e Start canonicos
+    assert.ok(layout.find((i) => i.id === "select" && i.text === "Select"));
+    assert.ok(layout.find((i) => i.id === "start" && i.text === "Start"));
 
-  // Layout diamante e gatilhos (X, Y, A, B, L, R)
-  for (const id of ["x", "y", "l", "a", "b", "r"]) {
-    assert.ok(layout.find((i) => i.id === id), `Botao ${id} ausente no Arcade`);
+    // Layout diamante e gatilhos (X, Y, A, B, L, R)
+    for (const id of ["x", "y", "l", "a", "b", "r"]) {
+      assert.ok(layout.find((i) => i.id === id), `Botao ${id} ausente no Arcade (${core})`);
+    }
   }
 });
 
