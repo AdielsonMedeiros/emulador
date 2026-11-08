@@ -1,6 +1,7 @@
 import { unlockAudioContext } from "./audio.js";
 import { getAnalogGamepadSettings } from "./controls.js";
 import { AutoFireManager } from "./autofire.js";
+import { SafeStorage, resolveAssetUrl } from "./utils.js";
 
 function initEmulatorPopupFix() {
   const enhance = () => {
@@ -220,7 +221,7 @@ export class EmulatorEngine {
         e.stopPropagation();
         closeMenu();
         const next = this.currentControlType === "analog" ? "dpad" : "analog";
-        localStorage.setItem("retro_control_type", next);
+        SafeStorage.setItem("retro_control_type", next);
         this.switchControlType(next);
       });
 
@@ -249,7 +250,7 @@ export class EmulatorEngine {
         e.stopPropagation();
         const next = !this.autoFire.enabled;
         this.autoFire.setEnabled(next);
-        localStorage.setItem("retro_autofire", String(next));
+        SafeStorage.setItem("retro_autofire", String(next));
         renderTurboBtn();
       });
 
@@ -293,82 +294,100 @@ export class EmulatorEngine {
   }
 
   launch(game, controlType, autoFireEnabled) {
-    this.currentGame = game;
-    this.currentControlType = controlType;
-    this.viewportElement.style.display = "block";
+    try {
+      this.currentGame = game;
+      this.currentControlType = controlType;
+      this.viewportElement.style.display = "block";
 
-    this.autoFire.setEnabled(autoFireEnabled);
-    this.autoFire.start(this.viewportElement);
+      this.autoFire.setEnabled(autoFireEnabled);
+      this.autoFire.start(this.viewportElement);
 
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen().catch(() => {});
-    }
-    if (screen.orientation && screen.orientation.lock) {
-      screen.orientation.lock("landscape").catch(() => {});
-    }
+      try {
+        if (document.documentElement && typeof document.documentElement.requestFullscreen === "function") {
+          const fsPromise = document.documentElement.requestFullscreen();
+          if (fsPromise && typeof fsPromise.catch === "function") {
+            fsPromise.catch(() => {});
+          }
+        }
+      } catch (e) {}
 
-    unlockAudioContext();
+      try {
+        if (screen.orientation && typeof screen.orientation.lock === "function") {
+          const lockPromise = screen.orientation.lock("landscape");
+          if (lockPromise && typeof lockPromise.catch === "function") {
+            lockPromise.catch(() => {});
+          }
+        }
+      } catch (e) {}
 
-    this.targetElement.innerHTML = `<div id="game-instance" style="width:100%; height:100%;"></div>`;
-    window.EJS_player = "#game-instance";
+      unlockAudioContext();
 
-    window.EJS_core = game.core;
-    window.EJS_gameName = game.title;
-    window.EJS_gameUrl = game.rom;
-    window.EJS_color = game.color || "#6366f1";
-    window.EJS_startOnLoaded = true;
-    window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
+      this.targetElement.innerHTML = `<div id="game-instance" style="width:100%; height:100%;"></div>`;
+      window.EJS_player = "#game-instance";
 
-    window.EJS_threads = false;
-    if (game.core === "n64") {
-      window.EJS_webgl = true;
-      window.EJS_controlScheme = "n64";
-      window.EJS_browserMode = "mobile";
-    } else {
-      window.EJS_webgl = false;
-    }
+      window.EJS_core = game.core;
+      window.EJS_gameName = game.title;
+      window.EJS_gameUrl = resolveAssetUrl(game.rom);
+      window.EJS_color = game.color || "#6366f1";
+      window.EJS_startOnLoaded = true;
+      window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
 
-    window.EJS_alignAudio = false;
-    window.EJS_audioWorklet = false;
-    window.EJS_sampleRate = 44100;
-    window.EJS_volume = 1.0;
-
-    if (controlType === "analog" && game.core !== "n64") {
-      window.EJS_VirtualGamepadSettings = getAnalogGamepadSettings(game.core);
-    } else {
-      delete window.EJS_VirtualGamepadSettings;
-    }
-
-    window.EJS_ready = () => {
-      this.setupEmulatorMenu(window.EJS_emulator);
-    };
-    window.EJS_onGameStart = () => {
-      this.setupEmulatorMenu(window.EJS_emulator);
-    };
-
-    const checkInterval = setInterval(() => {
-      if (window.EJS_emulator && window.EJS_emulator.elements && window.EJS_emulator.elements.menu) {
-        this.setupEmulatorMenu(window.EJS_emulator);
-        clearInterval(checkInterval);
+      window.EJS_threads = false;
+      if (game.core === "n64") {
+        window.EJS_webgl = true;
+        window.EJS_controlScheme = "n64";
+        window.EJS_browserMode = "mobile";
+      } else {
+        window.EJS_webgl = false;
       }
-    }, 200);
-    setTimeout(() => clearInterval(checkInterval), 15000);
 
-    const oldScript = document.getElementById("emulatorjs-loader");
-    if (oldScript) oldScript.remove();
+      window.EJS_alignAudio = false;
+      window.EJS_audioWorklet = false;
+      window.EJS_sampleRate = 44100;
+      window.EJS_volume = 1.0;
 
-    const script = document.createElement("script");
-    script.id = "emulatorjs-loader";
-    script.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
-    script.async = true;
-    document.body.appendChild(script);
+      if (controlType === "analog" && game.core !== "n64") {
+        window.EJS_VirtualGamepadSettings = getAnalogGamepadSettings(game.core);
+      } else {
+        delete window.EJS_VirtualGamepadSettings;
+      }
+
+      window.EJS_ready = () => {
+        this.setupEmulatorMenu(window.EJS_emulator);
+      };
+      window.EJS_onGameStart = () => {
+        this.setupEmulatorMenu(window.EJS_emulator);
+      };
+
+      const checkInterval = setInterval(() => {
+        if (window.EJS_emulator && window.EJS_emulator.elements && window.EJS_emulator.elements.menu) {
+          this.setupEmulatorMenu(window.EJS_emulator);
+          clearInterval(checkInterval);
+        }
+      }, 200);
+      setTimeout(() => clearInterval(checkInterval), 15000);
+
+      const oldScript = document.getElementById("emulatorjs-loader");
+      if (oldScript) oldScript.remove();
+
+      const script = document.createElement("script");
+      script.id = "emulatorjs-loader";
+      script.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
+      script.async = true;
+      script.onerror = () => {
+        console.error("Falha ao carregar CDN EmulatorJS");
+      };
+      document.body.appendChild(script);
+    } catch (err) {
+      console.error("Erro fatal ao inicializar emulador:", err);
+    }
   }
 
   switchControlType(newControlType) {
     if (!this.currentGame) return;
     this.quickSave();
     this.currentControlType = newControlType;
-    localStorage.setItem("retro_control_type", newControlType);
+    SafeStorage.setItem("retro_control_type", newControlType);
     this.launch(this.currentGame, newControlType, this.autoFire.enabled);
   }
 

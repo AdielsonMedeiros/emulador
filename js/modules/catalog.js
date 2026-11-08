@@ -1,3 +1,5 @@
+import { resolveAssetUrl } from "../core/utils.js";
+
 export class CatalogModule {
   constructor(games, onSelectGame) {
     this.games = games || [];
@@ -204,13 +206,22 @@ export class CatalogModule {
       this.onSelectGame(game);
     };
 
+    const resolvedCover = resolveAssetUrl(game.cover);
     item.innerHTML = `
-      <img class="catalog-thumb" src="${game.cover}" alt="${game.title}" loading="lazy" decoding="async" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'160\\' height=\\'120\\'%3E%3Crect fill=\\'%231a1d2e\\' width=\\'160\\' height=\\'120\\'/%3E%3C/svg%3E'">
+      <img class="catalog-thumb" src="${resolvedCover}" alt="${game.title}" loading="lazy" decoding="async">
       <div class="catalog-info">
         <div class="catalog-name">${game.title}</div>
         <div class="catalog-platform">${game.platform}</div>
       </div>
     `;
+
+    const img = item.querySelector("img");
+    if (img) {
+      img.onerror = () => {
+        img.onerror = null;
+        img.src = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='120'%3E%3Crect fill='%231a1d2e' width='160' height='120'/%3E%3C/svg%3E";
+      };
+    }
     return item;
   }
 

@@ -1,8 +1,10 @@
+import { SafeStorage } from "../core/utils.js";
+
 export class SettingsModule {
   constructor() {
-    this.controlType = localStorage.getItem("retro_control_type") || "dpad";
-    this.autoFire = localStorage.getItem("retro_autofire") === "true";
-    this.volume = parseInt(localStorage.getItem("retro_volume") || "100", 10);
+    this.controlType = SafeStorage.getItem("retro_control_type", "dpad");
+    this.autoFire = SafeStorage.getItem("retro_autofire", "false") === "true";
+    this.volume = parseInt(SafeStorage.getItem("retro_volume", "100"), 10);
     this.inGameMode = false;
     this.wasRunningBeforeOpen = false;
     this.manualPauseState = null;
@@ -134,7 +136,7 @@ export class SettingsModule {
     if (this.volumeSlider) {
       this.volumeSlider.addEventListener("input", (e) => {
         this.volume = parseInt(e.target.value, 10);
-        localStorage.setItem("retro_volume", String(this.volume));
+        SafeStorage.setItem("retro_volume", String(this.volume));
         if (this.volumeBadge) {
           this.volumeBadge.textContent = `${this.volume}%`;
         }
@@ -148,7 +150,7 @@ export class SettingsModule {
     document.querySelectorAll('input[name="control-type"]').forEach((input) => {
       input.addEventListener("change", (e) => {
         this.controlType = e.target.value;
-        localStorage.setItem("retro_control_type", this.controlType);
+        SafeStorage.setItem("retro_control_type", this.controlType);
 
         if (this.inGameMode && this.engine && this.engine.currentControlType !== this.controlType) {
           if (this.btnApplyControls) {
@@ -175,7 +177,7 @@ export class SettingsModule {
     document.querySelectorAll('input[name="autofire-setting"]').forEach((input) => {
       input.addEventListener("change", (e) => {
         this.autoFire = e.target.value === "true";
-        localStorage.setItem("retro_autofire", String(this.autoFire));
+        SafeStorage.setItem("retro_autofire", String(this.autoFire));
         if (this.engine && this.engine.autoFire) {
           this.engine.autoFire.setEnabled(this.autoFire);
         }

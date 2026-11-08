@@ -1,8 +1,9 @@
-import { GameService } from "./services/game-service.js?v=21";
-import { EmulatorEngine } from "./core/engine.js?v=21";
-import { SettingsModule } from "./modules/settings.js?v=21";
-import { CatalogModule } from "./modules/catalog.js?v=21";
-import { Router } from "./modules/router.js?v=21";
+import { GameService } from "./services/game-service.js?v=22";
+import { EmulatorEngine } from "./core/engine.js?v=22";
+import { SettingsModule } from "./modules/settings.js?v=22";
+import { CatalogModule } from "./modules/catalog.js?v=22";
+import { Router } from "./modules/router.js?v=22";
+import { resolveAssetUrl } from "./core/utils.js?v=22";
 
 class App {
   constructor() {
@@ -44,10 +45,29 @@ class App {
     }
   }
 
+  findGame(query) {
+    if (!query) return null;
+    const clean = String(query).toLowerCase().trim();
+    const alphanumeric = clean.replace(/[^a-z0-9]/g, "");
+
+    return (
+      this.games.find((g) => g.id.toLowerCase() === clean) ||
+      this.games.find((g) => g.id.toLowerCase().replace(/[^a-z0-9]/g, "") === alphanumeric) ||
+      this.games.find((g) => g.title.toLowerCase().replace(/[^a-z0-9]/g, "") === alphanumeric) ||
+      this.games.find((g) => {
+        const romBase = g.rom.split("/").pop().split(".")[0].toLowerCase();
+        const coverBase = g.cover.split("/").pop().split(".")[0].toLowerCase().replace("-cover", "");
+        return romBase === clean || coverBase === clean || romBase === alphanumeric || coverBase === alphanumeric;
+      }) ||
+      this.games.find((g) => g.title.toLowerCase().replace(/[^a-z0-9]/g, "").startsWith(alphanumeric)) ||
+      null
+    );
+  }
+
   handleRoute() {
     const gameId = Router.getGameIdFromUrl();
     if (gameId) {
-      const game = this.games.find((g) => g.id.toLowerCase() === gameId.toLowerCase());
+      const game = this.findGame(gameId);
       if (game) {
         this.showGameCard(game);
         return;
@@ -69,11 +89,12 @@ class App {
     document.getElementById("card-desc").textContent = game.description;
 
     const coverImg = document.getElementById("card-cover");
-    coverImg.src = game.cover;
-    coverImg.alt = game.title;
     coverImg.onerror = () => {
+      coverImg.onerror = null;
       coverImg.src = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='260' viewBox='0 0 400 260'%3E%3Crect fill='%231a1d2e' width='400' height='260'/%3E%3Ctext fill='%2394a3b8' font-family='sans-serif' font-size='18' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3ESem Capa%3C/text%3E%3C/svg%3E";
     };
+    coverImg.alt = game.title;
+    coverImg.src = resolveAssetUrl(game.cover);
 
     const btnLaunch = document.getElementById("btn-launch");
     btnLaunch.style.backgroundColor = game.color || "#6366f1";
@@ -103,6 +124,12 @@ class App {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function bootstrap() {
   new App();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bootstrap);
+} else {
+  bootstrap();
+}
