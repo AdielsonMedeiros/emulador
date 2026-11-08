@@ -1,7 +1,7 @@
-import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=41";
-import { resolveAssetUrl } from "./utils.js?v=41";
-import { getVirtualGamepadSettings, getButtonInputMap } from "./gamepad-config.js?v=41";
-import { AutoFireController, extractButtonId } from "./turbo.js?v=41";
+import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=42";
+import { resolveAssetUrl } from "./utils.js?v=42";
+import { getVirtualGamepadSettings, getButtonInputMap } from "./gamepad-config.js?v=42";
+import { AutoFireController, extractButtonId } from "./turbo.js?v=42";
 
 export function isAllowedInteractionTarget(target) {
   if (!target || typeof target.closest !== "function") return false;
@@ -140,7 +140,8 @@ export class EmulatorEngine {
       window.EJS_disableLocalStorage = true;
       window.EJS_CacheLimit = 0;
       window.EJS_cacheLimit = 0;
-      window.EJS_dontExtractBIOS = true;
+      delete window.EJS_biosUrl;
+      delete window.EJS_dontExtractBIOS;
       // No iOS WebKit, forcar core legado (WebGL 1.0) previne o vazamento de backing-store do compositor WebGL2
       window.EJS_forceLegacyCores = isIOS;
 
@@ -173,12 +174,6 @@ export class EmulatorEngine {
         window.EJS_browserMode = "mobile";
       } else {
         window.EJS_webgl = false;
-      }
-
-      if (game.core === "mame2003_plus" || game.core === "mame2003") {
-        window.EJS_biosUrl = resolveAssetUrl("roms/neogeo.zip");
-      } else {
-        delete window.EJS_biosUrl;
       }
 
       window.EJS_alignAudio = false;
@@ -360,6 +355,8 @@ export class EmulatorEngine {
     if (typeof window !== "undefined") {
       delete window.EJS_emulator;
       delete window.EJS_VirtualGamepadSettings;
+      delete window.EJS_biosUrl;
+      delete window.EJS_dontExtractBIOS;
     }
 
     if (this.layoutObserver) {
