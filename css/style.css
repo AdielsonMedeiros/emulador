@@ -420,6 +420,58 @@ main {
   color: var(--text-muted);
 }
 
+/* Catalog Pagination / Infinite Load-More */
+.catalog-pagination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px 0 16px;
+  width: 100%;
+}
+
+.btn-load-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 14px 28px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 280px;
+  min-height: 48px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.btn-load-more:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+}
+
+.btn-load-more:active {
+  transform: scale(0.97);
+}
+
+.pagination-info {
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+}
+
 /* View: Emulator Viewport */
 #emulator-viewport {
   display: none;
@@ -820,15 +872,26 @@ main {
   pointer-events: none !important;
 }
 
-/* Native EmulatorJS Menu Bar - Centered Floating Dashboard */
+/* Native EmulatorJS Menu Bar - Centered Floating Dashboard (Hidden by default) */
 .ejs_menu_bar,
-.ejs_small_screen .ejs_menu_bar {
+.ejs_small_screen .ejs_menu_bar,
+.ejs_menu_bar.ejs_menu_bar_hidden,
+.ejs_small_screen .ejs_menu_bar_hidden {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translate(-50%, -46%) scale(0.96) !important;
+}
+
+/* Centered menu is ONLY visible when explicitly opened via hamburger button */
+.ejs_menu_bar.retro_menu_open,
+.ejs_small_screen .ejs_menu_bar.retro_menu_open {
   position: fixed !important;
   left: 50% !important;
   top: 50% !important;
   bottom: auto !important;
   right: auto !important;
-  transform: translate(-50%, -50%) !important;
+  transform: translate(-50%, -50%) scale(1) !important;
   width: min(390px, 92vw) !important;
   max-height: 84vh !important;
   max-height: 84dvh !important;
@@ -850,14 +913,7 @@ main {
   box-sizing: border-box !important;
   opacity: 1 !important;
   pointer-events: auto !important;
-}
-
-.ejs_menu_bar.ejs_menu_bar_hidden,
-.ejs_small_screen .ejs_menu_bar_hidden {
-  display: none !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transform: translate(-50%, -46%) scale(0.96) !important;
+  transition: opacity 0.2s ease, transform 0.2s ease !important;
 }
 
 /* Header inside centered menu bar */

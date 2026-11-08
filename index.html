@@ -11,7 +11,7 @@
   <meta http-equiv="Expires" content="0">
   <link rel="manifest" href="manifest.webmanifest">
   <title>Retro NFC Touch - Web Player</title>
-  <link rel="stylesheet" href="css/style.css?v=15">
+  <link rel="stylesheet" href="css/style.css?v=17">
 </head>
 <body>
 
@@ -74,6 +74,14 @@
       </div>
 
       <div id="catalog-grid" class="catalog-grid"></div>
+
+      <div id="catalog-pagination" class="catalog-pagination hidden">
+        <button type="button" id="btn-load-more" class="btn-load-more">
+          <span>Carregar Mais Jogos</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <span id="pagination-info" class="pagination-info"></span>
+      </div>
 
       <div id="empty-state" class="empty-state hidden">
         <p class="empty-title">Nenhum jogo encontrado</p>
@@ -224,6 +232,6 @@
     <div id="game-frame"></div>
   </div>
 
-  <script type="module" src="js/main.js?v=15"></script>
+  <script type="module" src="js/main.js?v=17"></script>
 </body>
 </html>

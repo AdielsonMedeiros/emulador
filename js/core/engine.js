@@ -80,47 +80,83 @@ export class EmulatorEngine {
     if (menuEl.dataset.customEnhanced === "true") return;
     menuEl.dataset.customEnhanced = "true";
 
+    // Garante que o menu inicie 100% fechado
+    menuEl.classList.remove("retro_menu_open");
+    menuEl.classList.add("ejs_menu_bar_hidden");
+
     let backdrop = document.getElementById("ejs-menu-backdrop");
     if (!backdrop) {
       backdrop = document.createElement("div");
       backdrop.id = "ejs-menu-backdrop";
       backdrop.className = "ejs_menu_backdrop hidden";
-      backdrop.addEventListener("click", () => {
-        if (emulator.menu) emulator.menu.close();
-      });
       document.body.appendChild(backdrop);
     }
 
-    if (emulator.menu) {
-      emulator.menu.open = (force) => {
-        if (!emulator.started && force !== true) return;
-        menuEl.classList.remove("ejs_menu_bar_hidden");
-        backdrop.classList.remove("hidden");
-      };
+    const openMenu = () => {
+      menuEl.classList.add("retro_menu_open");
+      menuEl.classList.remove("ejs_menu_bar_hidden");
+      backdrop.classList.remove("hidden");
+    };
 
-      emulator.menu.close = () => {
-        menuEl.classList.add("ejs_menu_bar_hidden");
-        backdrop.classList.add("hidden");
-      };
+    const closeMenu = () => {
+      menuEl.classList.remove("retro_menu_open");
+      menuEl.classList.add("ejs_menu_bar_hidden");
+      backdrop.classList.add("hidden");
+    };
 
-      emulator.menu.toggle = () => {
-        if (!emulator.started) return;
-        const willOpen = menuEl.classList.contains("ejs_menu_bar_hidden");
-        if (willOpen) {
-          emulator.menu.open();
-        } else {
-          emulator.menu.close();
-        }
-      };
-    }
-
-    if (emulator.elements.parent) {
-      const hamburger = emulator.elements.parent.querySelector(".ejs_virtualGamepad_open");
-      if (hamburger) {
-        hamburger.style.display = "flex";
-        hamburger.style.opacity = "1";
+    const toggleMenu = () => {
+      if (menuEl.classList.contains("retro_menu_open")) {
+        closeMenu();
+      } else {
+        openMenu();
       }
+    };
+
+    backdrop.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeMenu();
+    };
+
+    // Substitui métodos de controle do menu
+    if (emulator.menu) {
+      emulator.menu.open = openMenu;
+      emulator.menu.close = closeMenu;
+      emulator.menu.toggle = toggleMenu;
+
+      // Desativa os listeners intrusivos nativos que abriam o menu ao clicar no canvas
+      if (emulator.menu.mousemoveListener) {
+        try {
+          emulator.removeEventListener(emulator.menu.mousemoveListener);
+        } catch (e) {}
+      }
+      emulator.createBottomMenuBarListeners = () => {};
     }
+
+    // Tecla ESC fecha o menu
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && menuEl.classList.contains("retro_menu_open")) {
+        closeMenu();
+      }
+    });
+
+    // Conecta o botão hambúrguer ao toggleMenu exclusivo
+    const bindHamburger = () => {
+      if (emulator.elements && emulator.elements.parent) {
+        const hamburger = emulator.elements.parent.querySelector(".ejs_virtualGamepad_open");
+        if (hamburger) {
+          hamburger.style.display = "flex";
+          hamburger.style.opacity = "1";
+          hamburger.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleMenu();
+          };
+        }
+      }
+    };
+    bindHamburger();
+    emulator.on("start", bindHamburger);
 
     let header = menuEl.querySelector(".ejs_menu_header");
     if (!header) {
@@ -133,7 +169,7 @@ export class EmulatorEngine {
       header.querySelector(".ejs_menu_header_close").addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (emulator.menu) emulator.menu.close();
+        closeMenu();
       });
       menuEl.insertBefore(header, menuEl.firstChild);
     }
@@ -168,10 +204,10 @@ export class EmulatorEngine {
       btnControl.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
+        closeMenu();
         const next = this.currentControlType === "analog" ? "dpad" : "analog";
         localStorage.setItem("retro_control_type", next);
         this.switchControlType(next);
-        if (emulator.menu) emulator.menu.close();
       });
 
       const btnTurbo = document.createElement("button");
@@ -222,12 +258,13 @@ export class EmulatorEngine {
       bottomClose.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (emulator.menu) emulator.menu.close();
+        closeMenu();
       });
       menuEl.appendChild(bottomClose);
     }
 
     emulator.on("exit", () => {
+      closeMenu();
       if (typeof this.onExitCallback === "function") {
         this.onExitCallback();
       }
