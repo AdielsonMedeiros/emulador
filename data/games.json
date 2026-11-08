@@ -2855,6 +2855,34 @@
       "rom": "roms/mortalkombat2md.bin",
       "cover": "covers/mortalkombat2md-cover.png",
       "color": "#c0392b"
+    },
+    {
+      "id": "residentevil2",
+      "title": "Resident Evil 2",
+      "platform": "Nintendo 64",
+      "core": "n64",
+      "year": 1999,
+      "publisher": "Capcom / Angel Studios",
+      "players": "1 Jogador",
+      "genre": "Survival Horror / Ação",
+      "description": "O clássico que comprimiu dois CDs de áudio e vídeo de PlayStation em um cartucho de N64 com som surround e a jornada de Leon e Claire em Raccoon City.",
+      "rom": "roms/residentevil2.z64",
+      "cover": "covers/residentevil2-cover.png",
+      "color": "#800020"
+    },
+    {
+      "id": "pokemonstadium",
+      "title": "Pokémon Stadium",
+      "platform": "Nintendo 64",
+      "core": "n64",
+      "year": 1999,
+      "publisher": "Nintendo",
+      "players": "1-4 Jogadores",
+      "genre": "Batalha / Estratégia",
+      "description": "Batalhas Pokémon em arenas 3D, desafios da Gym Leader Castle contra os líderes de Kanto e minigames multiplayer consagrados para até 4 jogadores.",
+      "rom": "roms/pokemonstadium.z64",
+      "cover": "covers/pokemonstadium-cover.png",
+      "color": "#e74c3c"
     }
   ]
 }
