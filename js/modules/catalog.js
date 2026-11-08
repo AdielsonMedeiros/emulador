@@ -21,7 +21,10 @@ export class CatalogModule {
 
     // Elementos de paginacao
     this.catalogPagination = document.getElementById("catalog-pagination");
-    this.btnLoadMore = document.getElementById("btn-load-more");
+    this.btnPagePrev = document.getElementById("btn-page-prev");
+    this.btnPageNext = document.getElementById("btn-page-next");
+    this.currentPageEl = document.getElementById("pagination-current-page");
+    this.totalPagesEl = document.getElementById("pagination-total-pages");
     this.paginationInfo = document.getElementById("pagination-info");
 
     this.init();
@@ -104,35 +107,25 @@ export class CatalogModule {
   }
 
   setupPagination() {
-    if (this.btnLoadMore) {
-      this.btnLoadMore.addEventListener("click", () => {
-        this.loadNextBatch();
+    if (this.btnPagePrev) {
+      this.btnPagePrev.addEventListener("click", () => {
+        if (this.currentPage > 1) {
+          this.currentPage--;
+          this.render(false, true);
+        }
       });
     }
 
-    // Auto-carregamento suave por scroll infinito via IntersectionObserver
-    if (typeof IntersectionObserver !== "undefined" && this.btnLoadMore) {
-      this.infiniteScrollObserver = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting) {
-            const total = this.filteredGames.length;
-            const displayed = this.currentPage * this.pageSize;
-            if (displayed < total) {
-              this.loadNextBatch();
-            }
-          }
-        },
-        { rootMargin: "300px 0px" }
-      );
-      this.infiniteScrollObserver.observe(this.btnLoadMore);
+    if (this.btnPageNext) {
+      this.btnPageNext.addEventListener("click", () => {
+        const total = this.filteredGames.length;
+        const totalPages = Math.max(1, Math.ceil(total / this.pageSize));
+        if (this.currentPage < totalPages) {
+          this.currentPage++;
+          this.render(false, true);
+        }
+      });
     }
-  }
-
-  loadNextBatch() {
-    const total = this.filteredGames.length;
-    if (this.currentPage * this.pageSize >= total) return;
-    this.currentPage++;
-    this.render(false);
   }
 
   normalize(str) {
@@ -221,16 +214,23 @@ export class CatalogModule {
     return item;
   }
 
-  render(reset = true) {
+  render(reset = true, shouldScroll = false) {
     if (!this.catalogGrid) return;
 
     if (reset) {
       this.currentPage = 1;
       this.applyFilters();
-      this.catalogGrid.innerHTML = "";
     }
 
     const total = this.filteredGames.length;
+    const totalPages = Math.max(1, Math.ceil(total / this.pageSize));
+
+    if (this.currentPage > totalPages) {
+      this.currentPage = totalPages;
+    }
+    if (this.currentPage < 1) {
+      this.currentPage = 1;
+    }
 
     if (this.catalogCount) {
       this.catalogCount.textContent = `${total} ${total === 1 ? "jogo encontrado" : "jogos encontrados"}`;
@@ -240,46 +240,57 @@ export class CatalogModule {
       this.emptyState.classList.toggle("hidden", total > 0);
     }
 
-    // Paginacao por lotes em memoria
+    this.catalogGrid.innerHTML = "";
+
+    if (total === 0) {
+      this.updatePaginationUI(0, 0, 0, 0);
+      return;
+    }
+
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = Math.min(startIndex + this.pageSize, total);
-    const batch = this.filteredGames.slice(startIndex, endIndex);
+    const pageItems = this.filteredGames.slice(startIndex, endIndex);
 
     const fragment = document.createDocumentFragment();
-    batch.forEach((game) => {
+    pageItems.forEach((game) => {
       fragment.appendChild(this.createCard(game));
     });
     this.catalogGrid.appendChild(fragment);
 
-    this.updatePaginationUI(total, endIndex);
+    this.updatePaginationUI(total, totalPages, startIndex + 1, endIndex);
+
+    if (shouldScroll) {
+      const topOffset = this.catalogGrid.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top: Math.max(0, topOffset), behavior: "smooth" });
+    }
   }
 
-  updatePaginationUI(total, displayedCount) {
-    if (!this.catalogPagination || !this.btnLoadMore) return;
+  updatePaginationUI(total, totalPages, startItem, endItem) {
+    if (!this.catalogPagination) return;
 
-    if (total === 0 || total <= this.pageSize) {
+    if (total === 0 || totalPages <= 1) {
       this.catalogPagination.classList.add("hidden");
       return;
     }
 
     this.catalogPagination.classList.remove("hidden");
 
-    if (displayedCount >= total) {
-      this.btnLoadMore.classList.add("hidden");
-      if (this.paginationInfo) {
-        this.paginationInfo.textContent = `Todos os ${total} jogos carregados`;
-      }
-    } else {
-      this.btnLoadMore.classList.remove("hidden");
-      const remaining = total - displayedCount;
-      const nextBatchSize = Math.min(this.pageSize, remaining);
-      const btnSpan = this.btnLoadMore.querySelector("span");
-      if (btnSpan) {
-        btnSpan.textContent = `Carregar Mais (+${nextBatchSize})`;
-      }
-      if (this.paginationInfo) {
-        this.paginationInfo.textContent = `Exibindo ${displayedCount} de ${total} jogos`;
-      }
+    if (this.currentPageEl) {
+      this.currentPageEl.textContent = String(this.currentPage);
+    }
+    if (this.totalPagesEl) {
+      this.totalPagesEl.textContent = String(totalPages);
+    }
+
+    if (this.btnPagePrev) {
+      this.btnPagePrev.disabled = this.currentPage <= 1;
+    }
+    if (this.btnPageNext) {
+      this.btnPageNext.disabled = this.currentPage >= totalPages;
+    }
+
+    if (this.paginationInfo) {
+      this.paginationInfo.textContent = `Mostrando ${startItem}–${endItem} de ${total} jogos`;
     }
   }
 }

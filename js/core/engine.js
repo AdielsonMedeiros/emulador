@@ -92,6 +92,7 @@ export class EmulatorEngine {
       document.body.appendChild(backdrop);
     }
 
+    let lastToggleTime = 0;
     const openMenu = () => {
       menuEl.classList.add("retro_menu_open");
       menuEl.classList.remove("ejs_menu_bar_hidden");
@@ -105,6 +106,10 @@ export class EmulatorEngine {
     };
 
     const toggleMenu = () => {
+      const now = Date.now();
+      if (now - lastToggleTime < 300) return;
+      lastToggleTime = now;
+
       if (menuEl.classList.contains("retro_menu_open")) {
         closeMenu();
       } else {
@@ -146,18 +151,21 @@ export class EmulatorEngine {
       }
     });
 
-    // Conecta o botão hambúrguer ao toggleMenu exclusivo
+    // Conecta o botão hambúrguer ao toggleMenu exclusivo e remove os listeners múltiplos do EmulatorJS
     const bindHamburger = () => {
       if (emulator.elements && emulator.elements.parent) {
-        const hamburger = emulator.elements.parent.querySelector(".ejs_virtualGamepad_open");
-        if (hamburger) {
-          hamburger.style.display = "flex";
-          hamburger.style.opacity = "1";
-          hamburger.onclick = (e) => {
+        const oldHamburger = emulator.elements.parent.querySelector(".ejs_virtualGamepad_open");
+        if (oldHamburger && !oldHamburger.dataset.customBound) {
+          const newHamburger = oldHamburger.cloneNode(true);
+          newHamburger.dataset.customBound = "true";
+          newHamburger.style.display = "flex";
+          newHamburger.style.opacity = "1";
+          newHamburger.onclick = (e) => {
             e.preventDefault();
             e.stopPropagation();
             toggleMenu();
           };
+          oldHamburger.parentNode.replaceChild(newHamburger, oldHamburger);
         }
       }
     };
