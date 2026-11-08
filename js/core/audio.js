@@ -41,7 +41,7 @@ export function resumeEmulatorAudio() {
 }
 
 export function registerAudioUnlockListeners() {
-  if (typeof window === "undefined" || window._audioUnlockRegistered) return;
+  if (typeof window === "undefined" || !window.addEventListener || window._audioUnlockRegistered) return;
   window._audioUnlockRegistered = true;
 
   const unlock = () => {

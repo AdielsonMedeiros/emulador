@@ -98,3 +98,22 @@ export function getVirtualGamepadSettings(core) {
   }
 }
 
+/**
+ * Retorna o mapa de ID do botao para seu input_value numerico no core correspondente.
+ * @param {string} core
+ * @returns {Map<string, number>}
+ */
+export function getButtonInputMap(core) {
+  const settings = getVirtualGamepadSettings(core);
+  const map = new Map();
+  if (Array.isArray(settings)) {
+    for (const item of settings) {
+      if (item.type === "button" && item.id && typeof item.input_value === "number") {
+        map.set(item.id.toLowerCase(), item.input_value);
+      }
+    }
+  }
+  return map;
+}
+
+

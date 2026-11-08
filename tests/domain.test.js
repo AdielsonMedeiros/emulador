@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { GameMatcher } from "../js/core/matcher.js";
 import { resolveAssetUrl, SafeStorage } from "../js/core/utils.js";
-import { getVirtualGamepadSettings } from "../js/core/gamepad-config.js";
+import { getVirtualGamepadSettings, getButtonInputMap } from "../js/core/gamepad-config.js";
 import { isAllowedInteractionTarget } from "../js/core/engine.js";
 
 // Mock de catalogo para testes de unidade
@@ -182,6 +182,28 @@ test("GamepadConfig: configuracao calibrada para Arcade (fbneo / fbalpha2012 / a
       assert.ok(layout.find((i) => i.id === id), `Botao ${id} ausente no Arcade (${core})`);
     }
   }
+});
+
+test("GamepadConfig: getButtonInputMap extrai mapa numerico de botoes por core", () => {
+  const snesMap = getButtonInputMap("snes9x");
+  assert.equal(snesMap.get("x"), 9);
+  assert.equal(snesMap.get("y"), 1);
+  assert.equal(snesMap.get("a"), 8);
+  assert.equal(snesMap.get("b"), 0);
+
+  const segaMap = getButtonInputMap("segaMD");
+  assert.equal(segaMap.get("a"), 1);
+  assert.equal(segaMap.get("b"), 0);
+  assert.equal(segaMap.get("c"), 8);
+  assert.equal(segaMap.get("x"), 10);
+  assert.equal(segaMap.get("y"), 9);
+  assert.equal(segaMap.get("z"), 11);
+
+  const mameMap = getButtonInputMap("mame2003_plus");
+  assert.equal(mameMap.get("x"), 9);
+  assert.equal(mameMap.get("y"), 1);
+  assert.equal(mameMap.get("a"), 8);
+  assert.equal(mameMap.get("b"), 0);
 });
 
 function createMockElement(classList = [], parent = null) {

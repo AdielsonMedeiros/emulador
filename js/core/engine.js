@@ -1,6 +1,7 @@
-import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=40";
-import { resolveAssetUrl } from "./utils.js?v=40";
-import { getVirtualGamepadSettings } from "./gamepad-config.js?v=40";
+import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=41";
+import { resolveAssetUrl } from "./utils.js?v=41";
+import { getVirtualGamepadSettings, getButtonInputMap } from "./gamepad-config.js?v=41";
+import { AutoFireController, extractButtonId } from "./turbo.js?v=41";
 
 export function isAllowedInteractionTarget(target) {
   if (!target || typeof target.closest !== "function") return false;
@@ -19,6 +20,20 @@ export class EmulatorEngine {
     this.targetElement = targetElement;
     this.currentGame = null;
     this.onExitCallback = null;
+    this.buttonInputMap = new Map();
+
+    this.turboController = new AutoFireController({
+      simulateInputFn: (player, inputValue, state) => {
+        if (
+          typeof window !== "undefined" &&
+          window.EJS_emulator &&
+          window.EJS_emulator.gameManager &&
+          typeof window.EJS_emulator.gameManager.simulateInput === "function"
+        ) {
+          window.EJS_emulator.gameManager.simulateInput(player, inputValue, state);
+        }
+      }
+    });
 
     registerAudioUnlockListeners();
 
@@ -39,9 +54,38 @@ export class EmulatorEngine {
               } catch (err) {}
             }
           }
+
+          const touches = e.changedTouches || [e];
+          for (let i = 0; i < touches.length; i++) {
+            const touch = touches[i];
+            const btn = touch.target && touch.target.closest && touch.target.closest(".ejs_virtualGamepad_button");
+            if (btn) {
+              const id = extractButtonId(btn);
+              if (id && this.buttonInputMap.has(id)) {
+                this.turboController.startPress(id, this.buttonInputMap.get(id), 0);
+              }
+            }
+          }
         },
         { passive: true }
       );
+
+      const handleTouchEnd = (e) => {
+        const touches = e.changedTouches || [e];
+        for (let i = 0; i < touches.length; i++) {
+          const touch = touches[i];
+          const btn = touch.target && touch.target.closest && touch.target.closest(".ejs_virtualGamepad_button");
+          if (btn) {
+            const id = extractButtonId(btn);
+            if (id && this.buttonInputMap.has(id)) {
+              this.turboController.releasePress(id, this.buttonInputMap.get(id), 0);
+            }
+          }
+        }
+      };
+
+      this.viewportElement.addEventListener("touchend", handleTouchEnd, { passive: true });
+      this.viewportElement.addEventListener("touchcancel", handleTouchEnd, { passive: true });
     }
   }
 
@@ -52,6 +96,7 @@ export class EmulatorEngine {
   launch(game) {
     try {
       this.currentGame = game;
+      this.buttonInputMap = getButtonInputMap(game.core);
       this.viewportElement.style.display = "block";
 
       try {
@@ -277,7 +322,14 @@ export class EmulatorEngine {
   }
 
   stop() {
-    if (window.EJS_emulator) {
+    if (this.turboController) {
+      this.turboController.cancelAll();
+    }
+    if (this.buttonInputMap) {
+      this.buttonInputMap.clear();
+    }
+
+    if (typeof window !== "undefined" && window.EJS_emulator) {
       try {
         if (typeof window.EJS_emulator.pause === "function") {
           window.EJS_emulator.pause();
@@ -285,24 +337,30 @@ export class EmulatorEngine {
       } catch (e) {}
     }
 
-    this.targetElement.innerHTML = "";
-    this.viewportElement.style.display = "none";
+    if (this.targetElement) {
+      this.targetElement.innerHTML = "";
+    }
+    if (this.viewportElement && this.viewportElement.style) {
+      this.viewportElement.style.display = "none";
+    }
     this.currentGame = null;
 
-    if (document.fullscreenElement) {
+    if (typeof document !== "undefined" && document.fullscreenElement) {
       try {
         document.exitFullscreen().catch(() => {});
       } catch (e) {}
     }
 
-    if (screen.orientation && screen.orientation.unlock) {
+    if (typeof screen !== "undefined" && screen.orientation && screen.orientation.unlock) {
       try {
         screen.orientation.unlock();
       } catch (e) {}
     }
 
-    delete window.EJS_emulator;
-    delete window.EJS_VirtualGamepadSettings;
+    if (typeof window !== "undefined") {
+      delete window.EJS_emulator;
+      delete window.EJS_VirtualGamepadSettings;
+    }
 
     if (this.layoutObserver) {
       this.layoutObserver.disconnect();
