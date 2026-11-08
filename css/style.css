@@ -655,8 +655,7 @@ main {
   box-shadow: 0 1px 0 #0d0f17, inset 0 2px 4px rgba(0, 0, 0, 0.8) !important;
 }
 
-/* Container de Ancoragem do Stick Analogico */
-.ejs_virtualGamepad_left > div,
+/* Container de Ancoragem do Stick Analogico (Apenas o container do stick) */
 .ejs_virtualGamepad_left .b_stick {
   width: 100% !important;
   height: 100% !important;
@@ -664,6 +663,9 @@ main {
   top: 0 !important;
   left: 0 !important;
   touch-action: none !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 /* Base do Stick Analogico (Circulo Externo Estatico) */
