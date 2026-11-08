@@ -1,6 +1,6 @@
-import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=35";
-import { resolveAssetUrl } from "./utils.js?v=35";
-import { getVirtualGamepadSettings } from "./gamepad-config.js?v=35";
+import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=36";
+import { resolveAssetUrl } from "./utils.js?v=36";
+import { getVirtualGamepadSettings } from "./gamepad-config.js?v=36";
 
 export function isAllowedInteractionTarget(target) {
   if (!target || typeof target.closest !== "function") return false;
@@ -86,7 +86,14 @@ export class EmulatorEngine {
       window.EJS_VirtualGamepadSettings = getVirtualGamepadSettings(game.core);
 
       window.EJS_threads = false;
-      window.EJS_cacheLimit = 40 * 1024 * 1024;
+      window.EJS_disableDatabases = true;
+      window.EJS_disableLocalStorage = true;
+      window.EJS_CacheLimit = 0;
+      window.EJS_cacheLimit = 0;
+      window.EJS_dontExtractBIOS = true;
+
+      const isArcade = game.core === "fbneo" || game.core === "arcade";
+
       if (game.core === "n64") {
         window.EJS_webgl = true;
         window.EJS_controlScheme = "n64";
@@ -99,7 +106,9 @@ export class EmulatorEngine {
 
       window.EJS_alignAudio = false;
       window.EJS_audioWorklet = false;
-      window.EJS_sampleRate = 44100;
+      // Taxa de 22050 Hz no Arcade economiza 50% de memoria em buffers Web Audio
+      // e preserva a fidelidade nativa do chip de som Yamaha YM2610 do Neo-Geo
+      window.EJS_sampleRate = isArcade ? 22050 : 44100;
       window.EJS_volume = 1.0;
 
       window.EJS_ready = () => {
