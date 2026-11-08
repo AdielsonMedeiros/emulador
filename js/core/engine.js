@@ -191,17 +191,45 @@ export class EmulatorEngine {
     return false;
   }
 
+  pause() {
+    if (!window.EJS_emulator) return false;
+    if (!window.EJS_emulator.paused && typeof window.EJS_emulator.pause === "function") {
+      try {
+        window.EJS_emulator.pause();
+      } catch (e) {}
+    }
+    try {
+      const al = window.EJS_emulator?.gameManager?.Module?.AL;
+      if (al?.currentCtx?.audioCtx?.state === "running") {
+        al.currentCtx.audioCtx.suspend().catch(() => {});
+      }
+    } catch (e) {}
+    return true;
+  }
+
+  resume() {
+    if (!window.EJS_emulator) return false;
+    try {
+      const al = window.EJS_emulator?.gameManager?.Module?.AL;
+      if (al?.currentCtx?.audioCtx?.state === "suspended") {
+        al.currentCtx.audioCtx.resume().catch(() => {});
+      }
+    } catch (e) {}
+    if (window.EJS_emulator.paused && typeof window.EJS_emulator.play === "function") {
+      try {
+        window.EJS_emulator.play();
+      } catch (e) {}
+    }
+    return true;
+  }
+
   togglePause() {
     if (!window.EJS_emulator) return false;
     if (window.EJS_emulator.paused) {
-      if (typeof window.EJS_emulator.play === "function") {
-        window.EJS_emulator.play();
-      }
+      this.resume();
       return false; // agora esta rodando
     } else {
-      if (typeof window.EJS_emulator.pause === "function") {
-        window.EJS_emulator.pause();
-      }
+      this.pause();
       return true; // agora esta pausado
     }
   }

@@ -238,11 +238,20 @@ main {
 }
 
 /* Platform Chips (Horizontal Scroll on Mobile) */
+.chips-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
 .platform-chips {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  scroll-behavior: smooth;
+  padding: 4px 0;
+  width: 100%;
   scrollbar-width: none;
   -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
@@ -250,6 +259,45 @@ main {
 
 .platform-chips::-webkit-scrollbar {
   display: none;
+}
+
+.chip-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(26, 29, 46, 0.94);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: opacity 0.2s, background-color 0.2s, border-color 0.2s, transform 0.1s;
+}
+
+.chip-nav-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.chip-nav-btn:active {
+  transform: translateY(-50%) scale(0.92);
+}
+
+.chip-nav-left {
+  left: 0;
+}
+
+.chip-nav-right {
+  right: 0;
 }
 
 .chip {

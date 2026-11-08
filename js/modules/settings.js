@@ -4,6 +4,8 @@ export class SettingsModule {
     this.autoFire = localStorage.getItem("retro_autofire") === "true";
     this.volume = parseInt(localStorage.getItem("retro_volume") || "100", 10);
     this.inGameMode = false;
+    this.wasRunningBeforeOpen = false;
+    this.manualPauseState = null;
     this.engine = null;
     this.onExitGame = null;
 
@@ -48,6 +50,12 @@ export class SettingsModule {
 
   open() {
     if (!this.modal) return;
+    if (this.inGameMode && this.engine) {
+      this.wasRunningBeforeOpen = !this.engine.isPaused();
+      if (this.wasRunningBeforeOpen) {
+        this.engine.pause();
+      }
+    }
     this.updateUI();
     this.modal.classList.remove("hidden");
   }
@@ -55,6 +63,15 @@ export class SettingsModule {
   close() {
     if (!this.modal) return;
     this.modal.classList.add("hidden");
+    if (this.inGameMode && this.engine) {
+      if (this.manualPauseState === true) {
+        // Usuario escolheu explicitamente manter o jogo pausado via botao
+      } else {
+        this.engine.resume();
+      }
+      this.manualPauseState = null;
+      this.wasRunningBeforeOpen = false;
+    }
   }
 
   setInGameMode(inGame) {
@@ -171,6 +188,7 @@ export class SettingsModule {
       this.btnQuickPause.addEventListener("click", () => {
         if (this.engine) {
           const paused = this.engine.togglePause();
+          this.manualPauseState = paused;
           if (this.txtQuickPause) {
             this.txtQuickPause.textContent = paused ? "Retomar Jogo" : "Pausar Jogo";
           }

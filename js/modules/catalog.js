@@ -8,6 +8,8 @@ export class CatalogModule {
     this.searchInput = document.getElementById("search-input");
     this.searchClear = document.getElementById("search-clear");
     this.platformChips = document.getElementById("platform-chips");
+    this.btnScrollLeft = document.getElementById("btn-scroll-chips-left");
+    this.btnScrollRight = document.getElementById("btn-scroll-chips-right");
     this.catalogCount = document.getElementById("catalog-count");
     this.catalogGrid = document.getElementById("catalog-grid");
     this.emptyState = document.getElementById("empty-state");
@@ -17,8 +19,37 @@ export class CatalogModule {
 
   init() {
     this.setupSearch();
+    this.setupChipsScroll();
     this.renderPlatformChips();
     this.render();
+  }
+
+  setupChipsScroll() {
+    if (!this.platformChips || !this.btnScrollLeft || !this.btnScrollRight) return;
+
+    const scrollStep = 200;
+
+    this.btnScrollLeft.addEventListener("click", () => {
+      this.platformChips.scrollBy({ left: -scrollStep, behavior: "smooth" });
+    });
+
+    this.btnScrollRight.addEventListener("click", () => {
+      this.platformChips.scrollBy({ left: scrollStep, behavior: "smooth" });
+    });
+
+    this.platformChips.addEventListener("scroll", () => this.updateScrollButtons(), { passive: true });
+    window.addEventListener("resize", () => this.updateScrollButtons());
+  }
+
+  updateScrollButtons() {
+    if (!this.platformChips || !this.btnScrollLeft || !this.btnScrollRight) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = this.platformChips;
+    const canScrollLeft = scrollLeft > 6;
+    const canScrollRight = scrollLeft + clientWidth < scrollWidth - 6;
+
+    this.btnScrollLeft.classList.toggle("hidden", !canScrollLeft);
+    this.btnScrollRight.classList.toggle("hidden", !canScrollRight);
   }
 
   setupSearch() {
@@ -67,10 +98,13 @@ export class CatalogModule {
         this.selectedPlatform = plat;
         document.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
         chip.classList.add("active");
+        chip.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
         this.render();
       };
       this.platformChips.appendChild(chip);
     });
+
+    requestAnimationFrame(() => this.updateScrollButtons());
   }
 
   render() {
@@ -109,7 +143,7 @@ export class CatalogModule {
       };
 
       item.innerHTML = `
-        <img class="catalog-thumb" src="${game.cover}" alt="${game.title}" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'160\\' height=\\'120\\'%3E%3Crect fill=\\'%231a1d2e\\' width=\\'160\\' height=\\'120\\'/%3E%3C/svg%3E'">
+        <img class="catalog-thumb" src="${game.cover}" alt="${game.title}" loading="lazy" decoding="async" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'160\\' height=\\'120\\'%3E%3Crect fill=\\'%231a1d2e\\' width=\\'160\\' height=\\'120\\'/%3E%3C/svg%3E'">
         <div class="catalog-info">
           <div class="catalog-name">${game.title}</div>
           <div class="catalog-platform">${game.platform}</div>
