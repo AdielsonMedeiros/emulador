@@ -68,12 +68,5 @@ Edite o arquivo `data/games.json` para registrar os jogos:
 - `genesis_plus_gx`: Sega Genesis / Mega Drive / Master System
 - `gambatte`: Game Boy / Game Boy Color
 
----
 
-## 🚀 Como Publicar no GitHub Pages
-
-1. Crie um repositório no GitHub.
-2. Faça push desta estrutura de arquivos para a branch `main`.
-3. No GitHub: acesse **Settings** > **Pages** > **Branch**: selecione `main` e pasta `/ (root)`.
-4. Salve. Sua URL estará ativa em: `https://<seu-usuario>.github.io/<nome-do-repositorio>/`.
 
