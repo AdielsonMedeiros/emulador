@@ -42,3 +42,4 @@ export class GameMatcher {
     return games.find((g) => this.normalize(g.title).startsWith(alpha)) || null;
   }
 }
+

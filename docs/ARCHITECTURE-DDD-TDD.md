@@ -254,3 +254,4 @@ test("GameMatcher: deve retornar null para jogo inexistente", () => {
 3. **Paginacao Mobile-First:**
    - *Decisao:* Paginacao deterministica com 24 itens por pagina e rolagem suave dos chips de categoria.
    - *Motivo:* Evitar sobrecarga de memoria no DOM ao renderizar simultaneamente 206 capas de alta resolucao no mobile.
+

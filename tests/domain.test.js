@@ -95,3 +95,4 @@ test("Integridade de Catalogo: todos os jogos em games.json possuem arquivos fis
     assert.ok(fs.existsSync(coverPath), `Arquivo de capa nao encontrado no disco: ${game.cover}`);
   }
 });
+
