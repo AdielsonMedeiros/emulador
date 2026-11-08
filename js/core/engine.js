@@ -1,7 +1,8 @@
-import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=45";
-import { resolveAssetUrl } from "./utils.js?v=45";
-import { getVirtualGamepadSettings, getButtonInputMap } from "./gamepad-config.js?v=45";
-import { AutoFireController, extractButtonId } from "./turbo.js?v=45";
+import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=46";
+import { resolveAssetUrl } from "./utils.js?v=46";
+import { getVirtualGamepadSettings, getButtonInputMap } from "./gamepad-config.js?v=46";
+import { AutoFireController, extractButtonId } from "./turbo.js?v=46";
+import { LifecycleController } from "./lifecycle.js?v=46";
 
 export function isAllowedInteractionTarget(target) {
   if (!target || typeof target.closest !== "function") return false;
@@ -35,12 +36,21 @@ export class EmulatorEngine {
       }
     });
 
+    this.lifecycle = new LifecycleController({
+      getEmulator: () => (typeof window !== "undefined" ? window.EJS_emulator : null),
+      resumeAudioFn: () => resumeEmulatorAudio()
+    });
+
     registerAudioUnlockListeners();
 
     if (this.viewportElement) {
       this.viewportElement.addEventListener(
         "touchstart",
         (e) => {
+          if (this.lifecycle) {
+            this.lifecycle.handleInteraction();
+          }
+
           if (
             e.target &&
             (e.target.closest(".ejs_virtualGamepad_button") ||
@@ -98,6 +108,13 @@ export class EmulatorEngine {
       this.currentGame = game;
       this.buttonInputMap = getButtonInputMap(game.core);
       this.viewportElement.style.display = "block";
+
+      if (this.lifecycle) {
+        this.lifecycle.attach(
+          typeof window !== "undefined" ? window : null,
+          typeof document !== "undefined" ? document : null
+        );
+      }
 
       try {
         if (document.documentElement && typeof document.documentElement.requestFullscreen === "function") {
@@ -319,6 +336,10 @@ export class EmulatorEngine {
   }
 
   stop() {
+    if (this.lifecycle) {
+      this.lifecycle.detach();
+    }
+
     if (this.turboController) {
       this.turboController.cancelAll();
     }

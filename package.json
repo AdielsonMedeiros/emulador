@@ -4,7 +4,7 @@
   "description": "NFC Retro Web Player",
   "type": "module",
   "scripts": {
-    "test": "node --test tests/domain.test.js tests/turbo.test.js",
+    "test": "node --test tests/domain.test.js tests/turbo.test.js tests/lifecycle.test.js",
     "merge-arcade": "node scripts/merge-arcade.mjs"
   },
   "keywords": [

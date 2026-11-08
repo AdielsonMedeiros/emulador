@@ -22,19 +22,38 @@ export function unlockAudioContext() {
 
 export function resumeEmulatorAudio() {
   try {
-    if (window.EJS_emulator?.Module?.AL?.currentCtx) {
-      const al = window.EJS_emulator.Module.AL.currentCtx;
-      const ctx = al.audioCtx || al.ctx;
-      if (ctx && ctx.state === "suspended") {
-        ctx.resume().catch(() => {});
+    if (typeof window !== "undefined" && window._retroAudioCtx && window._retroAudioCtx.state === "suspended") {
+      window._retroAudioCtx.resume().catch(() => {});
+    }
+
+    const emu = typeof window !== "undefined" ? window.EJS_emulator : null;
+    if (emu) {
+      if (emu.audioContext && emu.audioContext.state === "suspended") {
+        emu.audioContext.resume().catch(() => {});
       }
-      if (Array.isArray(al.sources)) {
-        al.sources.forEach((s) => {
-          const c = s?.gain?.context;
-          if (c && c.state === "suspended") {
-            c.resume().catch(() => {});
-          }
-        });
+      if (emu.ctx && emu.ctx.state === "suspended") {
+        emu.ctx.resume().catch(() => {});
+      }
+      if (emu.gameManager?.audioCtx && emu.gameManager.audioCtx.state === "suspended") {
+        emu.gameManager.audioCtx.resume().catch(() => {});
+      }
+      if (emu.Module?.AL?.currentCtx) {
+        const al = emu.Module.AL.currentCtx;
+        const ctx = al.audioCtx || al.ctx;
+        if (ctx && ctx.state === "suspended") {
+          ctx.resume().catch(() => {});
+        }
+        if (Array.isArray(al.sources)) {
+          al.sources.forEach((s) => {
+            const c = s?.gain?.context;
+            if (c && c.state === "suspended") {
+              c.resume().catch(() => {});
+            }
+          });
+        }
+      }
+      if (emu.Module?.SDL2?.audioContext && emu.Module.SDL2.audioContext.state === "suspended") {
+        emu.Module.SDL2.audioContext.resume().catch(() => {});
       }
     }
   } catch (e) {}
