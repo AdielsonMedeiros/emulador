@@ -1,6 +1,6 @@
-import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=38";
-import { resolveAssetUrl } from "./utils.js?v=38";
-import { getVirtualGamepadSettings } from "./gamepad-config.js?v=38";
+import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=39";
+import { resolveAssetUrl } from "./utils.js?v=39";
+import { getVirtualGamepadSettings } from "./gamepad-config.js?v=39";
 
 export function isAllowedInteractionTarget(target) {
   if (!target || typeof target.closest !== "function") return false;
@@ -103,7 +103,9 @@ export class EmulatorEngine {
         game.core === "fbneo" ||
         game.core === "arcade" ||
         game.core === "fbalpha2012_cps1" ||
-        game.core === "fbalpha2012_cps2";
+        game.core === "fbalpha2012_cps2" ||
+        game.core === "mame2003_plus" ||
+        game.core === "mame2003";
 
       if (isArcade) {
         // Reduz a profundidade grafica de 32-bit para 16-bit (economiza 50% de VRAM de sprites)
@@ -128,7 +130,11 @@ export class EmulatorEngine {
         window.EJS_webgl = false;
       }
 
-      delete window.EJS_biosUrl;
+      if (game.core === "mame2003_plus" || game.core === "mame2003") {
+        window.EJS_biosUrl = resolveAssetUrl("roms/neogeo.zip");
+      } else {
+        delete window.EJS_biosUrl;
+      }
 
       window.EJS_alignAudio = false;
       window.EJS_audioWorklet = false;

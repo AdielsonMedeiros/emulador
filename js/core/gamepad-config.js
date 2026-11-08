@@ -78,6 +78,8 @@ export function getVirtualGamepadSettings(core) {
 
     case "fbalpha2012_cps1":
     case "fbalpha2012_cps2":
+    case "mame2003_plus":
+    case "mame2003":
     case "fbneo":
     case "arcade":
     case "snes9x":
