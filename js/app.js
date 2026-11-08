@@ -23,11 +23,20 @@ class EmulatorApp {
   constructor() {
     this.games = [];
     this.currentGame = null;
+    this.selectedPlatform = "ALL";
+    this.searchQuery = "";
 
     this.cardView = document.getElementById("game-card");
     this.catalogView = document.getElementById("catalog-view");
     this.emulatorViewport = document.getElementById("emulator-viewport");
     this.gameTarget = document.getElementById("game-frame");
+
+    this.searchInput = document.getElementById("search-input");
+    this.searchClear = document.getElementById("search-clear");
+    this.platformChips = document.getElementById("platform-chips");
+    this.catalogCount = document.getElementById("catalog-count");
+    this.catalogGrid = document.getElementById("catalog-grid");
+    this.emptyState = document.getElementById("empty-state");
 
     this.init();
   }
@@ -41,12 +50,67 @@ class EmulatorApp {
       const data = await response.json();
       this.games = data.games || [];
 
+      this.setupFilters();
       this.handleRoute();
       window.addEventListener("hashchange", () => this.handleRoute());
       window.addEventListener("popstate", () => this.handleRoute());
     } catch (err) {
       this.showToast(`Erro de inicialização: ${err.message}`);
     }
+  }
+
+  setupFilters() {
+    if (this.searchInput) {
+      this.searchInput.addEventListener("input", (e) => {
+        this.searchQuery = e.target.value.toLowerCase().trim();
+        if (this.searchClear) {
+          this.searchClear.classList.toggle("hidden", !this.searchQuery);
+        }
+        this.renderCatalogItems();
+      });
+    }
+
+    if (this.searchClear) {
+      this.searchClear.addEventListener("click", () => {
+        this.searchInput.value = "";
+        this.searchQuery = "";
+        this.searchClear.classList.add("hidden");
+        this.searchInput.focus();
+        this.renderCatalogItems();
+      });
+    }
+
+    this.renderPlatformChips();
+  }
+
+  renderPlatformChips() {
+    if (!this.platformChips) return;
+    this.platformChips.innerHTML = "";
+
+    const platformCounts = {};
+    this.games.forEach((g) => {
+      const p = g.platform || "Outros";
+      platformCounts[p] = (platformCounts[p] || 0) + 1;
+    });
+
+    const platforms = ["ALL", ...Object.keys(platformCounts).sort()];
+
+    platforms.forEach((plat) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = `chip ${this.selectedPlatform === plat ? "active" : ""}`;
+      const name = plat === "ALL" ? "Todos" : plat;
+      const count = plat === "ALL" ? this.games.length : platformCounts[plat];
+
+      chip.innerHTML = `${name} <span class="chip-badge">${count}</span>`;
+      chip.onclick = () => {
+        this.selectedPlatform = plat;
+        document.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
+        chip.classList.add("active");
+        this.renderCatalogItems();
+      };
+      this.platformChips.appendChild(chip);
+    });
   }
 
   /**
@@ -104,11 +168,36 @@ class EmulatorApp {
     this.currentGame = null;
     this.cardView.classList.add("hidden");
     this.catalogView.classList.remove("hidden");
+    this.renderCatalogItems();
+  }
 
-    const grid = document.getElementById("catalog-grid");
-    grid.innerHTML = "";
+  renderCatalogItems() {
+    if (!this.catalogGrid) return;
+    this.catalogGrid.innerHTML = "";
 
-    this.games.forEach((game) => {
+    const filtered = this.games.filter((game) => {
+      const matchesPlatform = this.selectedPlatform === "ALL" || game.platform === this.selectedPlatform;
+      const q = this.searchQuery;
+      const matchesQuery =
+        !q ||
+        game.title.toLowerCase().includes(q) ||
+        (game.genre && game.genre.toLowerCase().includes(q)) ||
+        (game.publisher && game.publisher.toLowerCase().includes(q)) ||
+        (game.year && String(game.year).includes(q));
+
+      return matchesPlatform && matchesQuery;
+    });
+
+    if (this.catalogCount) {
+      const total = filtered.length;
+      this.catalogCount.textContent = `${total} ${total === 1 ? "jogo encontrado" : "jogos encontrados"}`;
+    }
+
+    if (this.emptyState) {
+      this.emptyState.classList.toggle("hidden", filtered.length > 0);
+    }
+
+    filtered.forEach((game) => {
       const item = document.createElement("a");
       item.className = "catalog-item";
       item.href = `?game=${encodeURIComponent(game.id)}`;
@@ -125,7 +214,7 @@ class EmulatorApp {
           <div class="catalog-platform">${game.platform}</div>
         </div>
       `;
-      grid.appendChild(item);
+      this.catalogGrid.appendChild(item);
     });
   }
 

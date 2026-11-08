@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#0f111a">
   <link rel="manifest" href="manifest.webmanifest">
   <title>Retro NFC Touch - Web Player</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body>
 
@@ -43,8 +43,25 @@
 
     <!-- Full Catalog Grid View (quando nenhum jogo é passado na URL) -->
     <section id="catalog-view" class="catalog-section">
-      <h2 class="section-title">Coleção de Jogos</h2>
+      <div class="catalog-toolbar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" class="search-input" placeholder="Buscar por título, gênero, ano..." autocomplete="off">
+          <button id="search-clear" class="search-clear hidden" aria-label="Limpar busca">&times;</button>
+        </div>
+        <div id="platform-chips" class="platform-chips"></div>
+      </div>
+
+      <div class="catalog-status">
+        <span id="catalog-count" class="catalog-count">54 jogos</span>
+      </div>
+
       <div id="catalog-grid" class="catalog-grid"></div>
+
+      <div id="empty-state" class="empty-state hidden">
+        <p class="empty-title">Nenhum jogo encontrado</p>
+        <p class="empty-subtitle">Tente buscar por outro termo ou selecione Todos os consoles.</p>
+      </div>
     </section>
   </main>
 
@@ -53,7 +70,7 @@
     <div id="game-frame"></div>
   </div>
 
-  <script src="js/app.js?v=2"></script>
+  <script src="js/app.js?v=3"></script>
 </body>
 </html>
 
