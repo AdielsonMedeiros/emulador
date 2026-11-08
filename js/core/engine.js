@@ -5,6 +5,16 @@ import { AutoFireManager } from "./autofire.js";
 function initEmulatorPopupFix() {
   const enhance = () => {
     document.querySelectorAll(".ejs_popup_container").forEach((popup) => {
+      // Ignorar e manter oculto o painel nativo de drop de arquivos de desktop
+      if (popup.innerText && popup.innerText.includes("Drop save state here to load")) {
+        popup.style.display = "none";
+        return;
+      }
+
+      if (popup.style.display === "none") {
+        return;
+      }
+
       const directButtons = Array.from(popup.children).filter(
         (el) => el.classList && el.classList.contains("ejs_button")
       );
