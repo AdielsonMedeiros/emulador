@@ -17,6 +17,12 @@
       if (!p.endsWith('/') && !p.includes('.')) {
         window.location.replace(p + '/' + window.location.search + window.location.hash);
       }
+      if (new URLSearchParams(window.location.search).has('debug')) {
+        var dbg = document.createElement('script');
+        dbg.src = 'https://cdn.jsdelivr.net/npm/eruda';
+        dbg.onload = function() { window.eruda && window.eruda.init(); };
+        document.head.appendChild(dbg);
+      }
     })();
   </script>
   <link rel="stylesheet" href="css/style.css?v=22">
