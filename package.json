@@ -1,0 +1,17 @@
+{
+  "name": "retro-nfc-player",
+  "version": "1.0.0",
+  "description": "NFC Retro Web Player",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/domain.test.js"
+  },
+  "keywords": [
+    "emulator",
+    "nfc",
+    "retro",
+    "libretro"
+  ],
+  "author": "Adielson Medeiros",
+  "license": "MIT"
+}
