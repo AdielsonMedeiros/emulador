@@ -6,13 +6,13 @@ import { EmulatorEngine } from "../js/core/engine.js";
 test("AutoFireController: botoes elegiveis e inelegiveis", () => {
   const af = new AutoFireController();
 
-  // Ataque elegivel
+  // Acoes elegiveis para turbo (incluindo B)
   assert.equal(af.isEligible("y"), true, "Botao Y deve ser elegivel para turbo");
   assert.equal(af.isEligible("x"), true, "Botao X deve ser elegivel para turbo");
   assert.equal(af.isEligible("a"), true, "Botao A deve ser elegivel para turbo");
-
-  // Pulo NUNCA elegivel
-  assert.equal(af.isEligible("b"), false, "Botao B (pulo) NAO pode ter turbo");
+  assert.equal(af.isEligible("b"), true, "Botao B deve ser elegivel para turbo");
+  assert.equal(af.isEligible("c"), true, "Botao C deve ser elegivel para turbo");
+  assert.equal(af.isEligible("z"), true, "Botao Z deve ser elegivel para turbo");
 
   // Sistema e direcional NUNCA elegiveis
   assert.equal(af.isEligible("start"), false, "Start nao pode ter turbo");
@@ -76,7 +76,31 @@ test("AutoFireController: segurar botao elegivel (> delay) ativa cadencia turbo"
   assert.equal(last.state, 0, "Ultimo estado apos soltura deve ser sempre 0");
 });
 
-test("AutoFireController: segurar botao inelegivel (B - pulo) permanece continuo sem turbo", async () => {
+test("AutoFireController: segurar botao B ativa cadencia turbo", async () => {
+  const inputs = [];
+  const af = new AutoFireController({
+    simulateInputFn: (p, val, state) => inputs.push({ p, val, state }),
+    delayMs: 60,
+    intervalMs: 25
+  });
+
+  af.startPress("b", 0);
+  assert.equal(inputs.length, 1);
+  assert.deepEqual(inputs[0], { p: 0, val: 0, state: 1 });
+
+  // Espera ultrapassar o delay e executar ciclos de turbo
+  await new Promise((r) => setTimeout(r, 220));
+
+  assert.equal(af.isTurboActive("b"), true);
+  assert.ok(inputs.length >= 4, `Esperava pelo menos 4 pulsos no B, obteve ${inputs.length}`);
+
+  af.releasePress("b", 0);
+  assert.equal(af.isTurboActive("b"), false);
+  const last = inputs[inputs.length - 1];
+  assert.equal(last.state, 0);
+});
+
+test("AutoFireController: segurar botao inelegivel (L - ombro/sistema) permanece continuo sem turbo", async () => {
   const inputs = [];
   const af = new AutoFireController({
     simulateInputFn: (p, val, state) => inputs.push({ p, val, state }),
@@ -84,20 +108,20 @@ test("AutoFireController: segurar botao inelegivel (B - pulo) permanece continuo
     intervalMs: 20
   });
 
-  af.startPress("b", 0);
+  af.startPress("l", 10);
   assert.equal(inputs.length, 1);
-  assert.deepEqual(inputs[0], { p: 0, val: 0, state: 1 });
+  assert.deepEqual(inputs[0], { p: 0, val: 10, state: 1 });
 
   // Espera tempo suficiente
   await new Promise((r) => setTimeout(r, 120));
 
   // Nao deve haver pulsos extras
   assert.equal(inputs.length, 1);
-  assert.equal(af.isTurboActive("b"), false);
+  assert.equal(af.isTurboActive("l"), false);
 
-  af.releasePress("b", 0);
+  af.releasePress("l", 10);
   assert.equal(inputs.length, 2);
-  assert.deepEqual(inputs[1], { p: 0, val: 0, state: 0 });
+  assert.deepEqual(inputs[1], { p: 0, val: 10, state: 0 });
 });
 
 test("AutoFireController: cancelAll limpa todos os timers e desliga inputs ativos", async () => {
@@ -193,7 +217,7 @@ test("EmulatorEngine: touchstart e touchend em botao de tiro aciona AutoFireCont
   assert.equal(simulatedInputs.length, 2);
   assert.deepEqual(simulatedInputs[1], { p: 0, val: 1, state: 0 });
 
-  // Simula botao de pulo B (inelegivel) - deve enviar apenas press e release sem turbo
+  // Simula botao B (agora elegivel para turbo)
   simulatedInputs.length = 0;
   const mockBtnB = {
     classList: ["ejs_virtualGamepad_button", "b_b"],
@@ -207,15 +231,37 @@ test("EmulatorEngine: touchstart e touchend em botao de tiro aciona AutoFireCont
   assert.equal(simulatedInputs.length, 1);
   assert.deepEqual(simulatedInputs[0], { p: 0, val: 0, state: 1 });
 
-  await new Promise((r) => setTimeout(r, 80));
-  assert.equal(simulatedInputs.length, 1, "Pulo nao deve gerar pulsos adicionais");
-
   listeners["touchend"]({
     target: mockBtnB,
     changedTouches: [{ target: mockBtnB }]
   });
   assert.equal(simulatedInputs.length, 2);
   assert.deepEqual(simulatedInputs[1], { p: 0, val: 0, state: 0 });
+
+  // Simula botao L (inelegivel) - deve enviar apenas press e release sem turbo
+  engine.buttonInputMap.set("l", 10);
+  simulatedInputs.length = 0;
+  const mockBtnL = {
+    classList: ["ejs_virtualGamepad_button", "b_l"],
+    closest: (selector) => (selector === ".ejs_virtualGamepad_button" ? mockBtnL : null)
+  };
+
+  listeners["touchstart"]({
+    target: mockBtnL,
+    changedTouches: [{ target: mockBtnL }]
+  });
+  assert.equal(simulatedInputs.length, 1);
+  assert.deepEqual(simulatedInputs[0], { p: 0, val: 10, state: 1 });
+
+  await new Promise((r) => setTimeout(r, 80));
+  assert.equal(simulatedInputs.length, 1, "Botao L inelegivel nao deve gerar pulsos adicionais");
+
+  listeners["touchend"]({
+    target: mockBtnL,
+    changedTouches: [{ target: mockBtnL }]
+  });
+  assert.equal(simulatedInputs.length, 2);
+  assert.deepEqual(simulatedInputs[1], { p: 0, val: 10, state: 0 });
 
   // Cleanup
   engine.stop();

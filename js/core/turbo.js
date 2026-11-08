@@ -17,9 +17,9 @@ export class AutoFireController {
     this.delayMs = Number(options.delayMs) || 220;
     this.intervalMs = Number(options.intervalMs) || 65;
 
-    // Botoes de ataque canonicos autorizados (Y = tiro principal no arcade/snes, X = especial/bomba, A = ataque)
-    // Pulo (B), Direcionais (stick/dpad) e Sistema (Start/Select) NUNCA entram aqui.
-    const defaultEligible = ["y", "x", "a", "c", "z"];
+    // Botoes de acao/ataque autorizados para turbo (Y, X, A, B, C, Z)
+    // Direcionais (stick/dpad) e Sistema (Start/Select/L/R) permanecem continuos.
+    const defaultEligible = ["y", "x", "a", "b", "c", "z"];
     this.eligibleButtons = new Set(
       Array.isArray(options.eligibleButtons) && options.eligibleButtons.length > 0
         ? options.eligibleButtons.map((b) => String(b).toLowerCase())
