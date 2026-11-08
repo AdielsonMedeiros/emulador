@@ -158,7 +158,13 @@ class EmulatorApp {
 
       // Otimizações de performance e compatibilidade mobile (sem dependência de headers COOP/COEP)
       window.EJS_threads = false;
-      window.EJS_webgl = false; // Canvas 2D nativo tem menor latência de entrada em webviews móveis
+      if (game.core === "n64") {
+        window.EJS_webgl = true;
+        window.EJS_controlScheme = "n64";
+        window.EJS_browserMode = "mobile";
+      } else {
+        window.EJS_webgl = false; // Canvas 2D nativo tem menor latência para 16-bits
+      }
       window.EJS_alignAudio = false;
       window.EJS_audioWorklet = false;
       window.EJS_sampleRate = 44100;
