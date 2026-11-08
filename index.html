@@ -6,6 +6,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0f111a">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <link rel="manifest" href="manifest.webmanifest">
   <title>Retro NFC Touch - Web Player</title>
   <link rel="stylesheet" href="css/style.css?v=3">
@@ -29,10 +32,10 @@
       <div class="game-content">
         <h1 id="card-title" class="game-title">Carregando...</h1>
         <div class="game-meta">
-          <span id="card-players" class="meta-chip">🎮 1 Jogador</span>
-          <span id="card-year" class="meta-chip">📅 1990</span>
-          <span id="card-publisher" class="meta-chip">🏢 Nintendo</span>
-          <span id="card-genre" class="meta-chip">🎯 Plataforma</span>
+          <span id="card-players" class="meta-chip">1 Jogador</span>
+          <span id="card-year" class="meta-chip">1990</span>
+          <span id="card-publisher" class="meta-chip">Nintendo</span>
+          <span id="card-genre" class="meta-chip">Plataforma</span>
         </div>
         <p id="card-desc" class="game-desc"></p>
         <button id="btn-launch" class="btn-launch">
@@ -45,7 +48,7 @@
     <section id="catalog-view" class="catalog-section">
       <div class="catalog-toolbar">
         <div class="search-box">
-          <span class="search-icon">🔍</span>
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <input type="text" id="search-input" class="search-input" placeholder="Buscar por título, gênero, ano..." autocomplete="off">
           <button id="search-clear" class="search-clear hidden" aria-label="Limpar busca">&times;</button>
         </div>

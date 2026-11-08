@@ -146,10 +146,10 @@ class EmulatorApp {
     this.cardView.classList.remove("hidden");
 
     document.getElementById("card-title").textContent = game.title;
-    document.getElementById("card-players").textContent = `🎮 ${game.players}`;
-    document.getElementById("card-year").textContent = `📅 ${game.year}`;
-    document.getElementById("card-publisher").textContent = `🏢 ${game.publisher}`;
-    document.getElementById("card-genre").textContent = `🎯 ${game.genre}`;
+    document.getElementById("card-players").textContent = game.players;
+    document.getElementById("card-year").textContent = game.year;
+    document.getElementById("card-publisher").textContent = game.publisher;
+    document.getElementById("card-genre").textContent = game.genre;
     document.getElementById("card-desc").textContent = game.description;
 
     const coverImg = document.getElementById("card-cover");
