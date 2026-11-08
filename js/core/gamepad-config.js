@@ -48,20 +48,6 @@ export function getVirtualGamepadSettings(core) {
         { type: "button", text: "Select", id: "select", location: "center", left: -5, fontSize: 15, block: true, input_value: 2 }
       ];
 
-    case "fbneo":
-    case "arcade":
-      return [
-        { ...stickDigital },
-        { type: "button", text: "LP", id: "x", location: "right", right: 145, top: 0, bold: true, input_value: 10 },
-        { type: "button", text: "MP", id: "y", location: "right", right: 75, top: 0, bold: true, input_value: 9 },
-        { type: "button", text: "HP", id: "l", location: "right", right: 5, top: 0, bold: true, input_value: 11 },
-        { type: "button", text: "LK", id: "a", location: "right", right: 145, top: 70, bold: true, input_value: 1 },
-        { type: "button", text: "MK", id: "b", location: "right", right: 75, top: 70, bold: true, input_value: 0 },
-        { type: "button", text: "HK", id: "r", location: "right", right: 5, top: 70, bold: true, input_value: 8 },
-        { type: "button", text: "COIN", id: "select", location: "center", left: -10, fontSize: 13, block: true, input_value: 2 },
-        { type: "button", text: "START", id: "start", location: "center", left: 60, fontSize: 13, block: true, input_value: 3 }
-      ];
-
     case "segaMD":
       return [
         { ...stickDigital },
@@ -90,6 +76,8 @@ export function getVirtualGamepadSettings(core) {
         { fontSize: 20, type: "button", text: "CR", id: "cr", joystickInput: true, location: "right", left: 65, top: -25, input_value: 20 }
       ];
 
+    case "fbneo":
+    case "arcade":
     case "snes9x":
     default:
       return [
