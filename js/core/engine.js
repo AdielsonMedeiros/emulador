@@ -197,6 +197,11 @@ export class EmulatorEngine {
           stick.style.setProperty("border", "none", "important");
           stick.style.setProperty("box-shadow", "none", "important");
         }
+        const menuToggle = document.querySelector(".ejs_virtualGamepad_open");
+        if (menuToggle) {
+          menuToggle.style.setProperty("opacity", "1", "important");
+          menuToggle.style.setProperty("display", "flex", "important");
+        }
       };
 
       this.layoutObserver = new MutationObserver(() => {

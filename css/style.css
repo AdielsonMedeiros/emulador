@@ -755,3 +755,36 @@ main {
 .ejs_dpad_down_pressed .ejs_dpad_main {
   transform: translateY(3px) scale(0.97) !important;
 }
+
+/* Botao de Menu Hamburguer (Superior Direito - Destaque Visual e Acessibilidade Tatil) */
+.ejs_virtualGamepad_open {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 38px !important;
+  height: 38px !important;
+  top: max(10px, env(safe-area-inset-top, 10px)) !important;
+  right: max(10px, env(safe-area-inset-right, 10px)) !important;
+  background: #e0564c !important;
+  color: #ffffff !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 10px !important;
+  opacity: 1 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 10px rgba(224, 86, 76, 0.45) !important;
+  z-index: 9999 !important;
+  cursor: pointer !important;
+  transition: transform 0.1s ease, filter 0.1s ease !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.ejs_virtualGamepad_open:active {
+  transform: scale(0.92) !important;
+  filter: brightness(0.9) !important;
+}
+
+.ejs_virtualGamepad_open svg {
+  width: 22px !important;
+  height: 22px !important;
+  fill: #ffffff !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5)) !important;
+}
