@@ -2,6 +2,51 @@ import { unlockAudioContext } from "./audio.js";
 import { getAnalogGamepadSettings } from "./controls.js";
 import { AutoFireManager } from "./autofire.js";
 
+function initEmulatorPopupFix() {
+  const enhance = () => {
+    document.querySelectorAll(".ejs_popup_container").forEach((popup) => {
+      const directButtons = Array.from(popup.children).filter(
+        (el) => el.classList && el.classList.contains("ejs_button")
+      );
+      if (directButtons.length > 0) {
+        let footer = popup.querySelector(".ejs_popup_footer_bar");
+        if (!footer) {
+          footer = document.createElement("div");
+          footer.className = "ejs_popup_footer_bar";
+          popup.appendChild(footer);
+        }
+        directButtons.forEach((btn) => footer.appendChild(btn));
+      }
+
+      const title = popup.querySelector("h4");
+      if (title && !title.querySelector(".ejs_popup_top_close")) {
+        const topClose = document.createElement("button");
+        topClose.type = "button";
+        topClose.className = "ejs_popup_top_close";
+        topClose.innerHTML = "&times;";
+        topClose.setAttribute("aria-label", "Fechar");
+        topClose.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const closeBtn = Array.from(popup.querySelectorAll(".ejs_button")).find((b) =>
+            b.textContent.trim().toLowerCase().includes("close")
+          );
+          if (closeBtn) {
+            closeBtn.click();
+          } else {
+            popup.style.display = "none";
+          }
+        });
+        title.appendChild(topClose);
+      }
+    });
+  };
+
+  const observer = new MutationObserver(enhance);
+  observer.observe(document.body, { childList: true, subtree: true });
+  enhance();
+}
+
 export class EmulatorEngine {
   constructor(viewportElement, targetElement) {
     this.viewportElement = viewportElement;
@@ -9,6 +54,8 @@ export class EmulatorEngine {
     this.autoFire = new AutoFireManager();
     this.currentGame = null;
     this.currentControlType = null;
+
+    initEmulatorPopupFix();
   }
 
   launch(game, controlType, autoFireEnabled) {
