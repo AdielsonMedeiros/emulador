@@ -94,6 +94,43 @@ export class EmulatorEngine {
         }
       };
 
+      if (this.layoutObserver) {
+        this.layoutObserver.disconnect();
+        this.layoutObserver = null;
+      }
+
+      const enforceLayout = () => {
+        const bl = document.querySelector(".b_l");
+        if (bl) {
+          bl.style.setProperty("width", "58px", "important");
+          bl.style.setProperty("height", "38px", "important");
+          bl.style.setProperty("top", "-100px", "important");
+          bl.style.setProperty("left", "3px", "important");
+          bl.style.setProperty("border-radius", "8px", "important");
+          bl.style.setProperty("position", "absolute", "important");
+        }
+        const br = document.querySelector(".b_r");
+        if (br) {
+          br.style.setProperty("width", "58px", "important");
+          br.style.setProperty("height", "38px", "important");
+          br.style.setProperty("top", "-100px", "important");
+          br.style.setProperty("right", "3px", "important");
+          br.style.setProperty("border-radius", "8px", "important");
+          br.style.setProperty("position", "absolute", "important");
+        }
+        const stick = document.querySelector(".ejs_virtualGamepad_left .b_stick");
+        if (stick) {
+          stick.style.setProperty("background", "transparent", "important");
+          stick.style.setProperty("border", "none", "important");
+          stick.style.setProperty("box-shadow", "none", "important");
+        }
+      };
+
+      this.layoutObserver = new MutationObserver(() => {
+        enforceLayout();
+      });
+      this.layoutObserver.observe(this.targetElement, { childList: true, subtree: true });
+
       const oldScript = document.getElementById("emulatorjs-loader");
       if (oldScript) oldScript.remove();
 
@@ -137,6 +174,11 @@ export class EmulatorEngine {
 
     delete window.EJS_emulator;
     delete window.EJS_VirtualGamepadSettings;
+
+    if (this.layoutObserver) {
+      this.layoutObserver.disconnect();
+      this.layoutObserver = null;
+    }
 
     if (typeof this.onExitCallback === "function") {
       this.onExitCallback();
