@@ -7,6 +7,27 @@ export class EmulatorEngine {
     this.targetElement = targetElement;
     this.currentGame = null;
     this.onExitCallback = null;
+
+    if (this.viewportElement) {
+      this.viewportElement.addEventListener(
+        "touchstart",
+        (e) => {
+          if (
+            e.target &&
+            (e.target.closest(".ejs_virtualGamepad_button") ||
+              e.target.closest(".ejs_dpad_main") ||
+              e.target.closest(".ejs_dpad_bar"))
+          ) {
+            if (typeof navigator !== "undefined" && navigator.vibrate) {
+              try {
+                navigator.vibrate(12);
+              } catch (err) {}
+            }
+          }
+        },
+        { passive: true }
+      );
+    }
   }
 
   setOnExit(fn) {

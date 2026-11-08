@@ -583,3 +583,86 @@ main {
   z-index: 1000000;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
+
+/* Virtual Gamepad - Efeito Mecanico de Afundamento Tactil 3D */
+.ejs_virtualGamepad_button {
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.25), rgba(20, 22, 32, 0.65)) !important;
+  box-shadow: 0 4px 0 #0d0f17, 0 6px 12px rgba(0, 0, 0, 0.5), inset 0 2px 2px rgba(255, 255, 255, 0.45) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  color: #f8fafc !important;
+  transition: transform 0.04s ease-out, box-shadow 0.04s ease-out, background 0.04s ease-out !important;
+  will-change: transform, box-shadow;
+  touch-action: none;
+}
+
+/* Estado Afundado (Pressionado) */
+.ejs_virtualGamepad_button:active,
+.ejs_virtualGamepad_button.ejs_virtualGamepad_button_down,
+.ejs_virtualGamepad_button_down {
+  transform: translateY(3px) scale(0.93) !important;
+  background: linear-gradient(145deg, rgba(10, 11, 16, 0.85), rgba(255, 255, 255, 0.08)) !important;
+  box-shadow: 0 1px 0 #0d0f17, inset 0 3px 6px rgba(0, 0, 0, 0.85), 0 0 12px rgba(99, 102, 241, 0.45) !important;
+  color: #a5b4fc !important;
+}
+
+/* Gatilhos L e R (Ombro) */
+.ejs_virtualGamepad_top .ejs_virtualGamepad_button {
+  border-radius: 8px !important;
+  width: 58px !important;
+  height: 38px !important;
+  line-height: 38px !important;
+  font-size: 20px !important;
+  box-shadow: 0 3px 0 #0d0f17, 0 5px 10px rgba(0, 0, 0, 0.45), inset 0 2px 2px rgba(255, 255, 255, 0.4) !important;
+}
+
+.ejs_virtualGamepad_top .ejs_virtualGamepad_button:active,
+.ejs_virtualGamepad_top .ejs_virtualGamepad_button.ejs_virtualGamepad_button_down {
+  transform: translateY(2px) scale(0.95) !important;
+  box-shadow: 0 1px 0 #0d0f17, inset 0 2px 5px rgba(0, 0, 0, 0.85) !important;
+}
+
+/* Start e Select (Inferior) */
+.ejs_virtualGamepad_bottom .ejs_virtualGamepad_button {
+  border-radius: 12px !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  font-size: 13px !important;
+  box-shadow: 0 3px 0 #0d0f17, 0 4px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+.ejs_virtualGamepad_bottom .ejs_virtualGamepad_button:active,
+.ejs_virtualGamepad_bottom .ejs_virtualGamepad_button.ejs_virtualGamepad_button_down {
+  transform: translateY(2px) scale(0.96) !important;
+  box-shadow: 0 1px 0 #0d0f17, inset 0 2px 4px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* D-Pad (Direcional em Cruz) */
+.ejs_dpad_bar {
+  background: linear-gradient(145deg, #44475a, #21222c) !important;
+  box-shadow: 0 4px 0 #0f1017, 0 6px 12px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.3) !important;
+  transition: transform 0.04s ease-out, box-shadow 0.04s ease-out !important;
+}
+
+.ejs_dpad_left_pressed .ejs_dpad_horizontal,
+.ejs_dpad_right_pressed .ejs_dpad_horizontal,
+.ejs_dpad_up_pressed .ejs_dpad_vertical,
+.ejs_dpad_down_pressed .ejs_dpad_vertical {
+  filter: brightness(1.25);
+}
+
+.ejs_dpad_left_pressed .ejs_dpad_main {
+  transform: translateY(2px) scale(0.97) !important;
+}
+
+.ejs_dpad_right_pressed .ejs_dpad_main {
+  transform: translateY(2px) scale(0.97) !important;
+}
+
+.ejs_dpad_up_pressed .ejs_dpad_main {
+  transform: translateY(-1px) scale(0.97) !important;
+}
+
+.ejs_dpad_down_pressed .ejs_dpad_main {
+  transform: translateY(3px) scale(0.97) !important;
+}
