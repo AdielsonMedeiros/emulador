@@ -91,8 +91,46 @@ export class EmulatorEngine {
           window.EJS_emulator.on("exit", () => {
             this.stop();
           });
+
+          // Desativa o listener de mousemove da barra de menu no ambiente touch
+          if (window.EJS_emulator.menu && window.EJS_emulator.menu.mousemoveListener) {
+            try {
+              window.EJS_emulator.removeEventListener(window.EJS_emulator.menu.mousemoveListener);
+              window.EJS_emulator.menu.mousemoveListener = null;
+            } catch (e) {}
+          }
         }
       };
+
+      // Bloqueia eventos sinteticos de mousemove e click no mobile para impedir que a barra de menu inferior suba involuntariamente
+      if (!this.mouseGuardsAttached && this.targetElement) {
+        this.targetElement.addEventListener(
+          "mousemove",
+          (e) => {
+            if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
+              e.stopImmediatePropagation();
+            }
+          },
+          true
+        );
+
+        this.targetElement.addEventListener(
+          "click",
+          (e) => {
+            if (
+              ("ontouchstart" in window || navigator.maxTouchPoints > 0) &&
+              !e.target.closest(".ejs_virtualGamepad_open") &&
+              !e.target.closest(".ejs_menu_bar") &&
+              !e.target.closest(".ejs_popup")
+            ) {
+              e.stopImmediatePropagation();
+            }
+          },
+          true
+        );
+
+        this.mouseGuardsAttached = true;
+      }
 
       if (this.layoutObserver) {
         this.layoutObserver.disconnect();

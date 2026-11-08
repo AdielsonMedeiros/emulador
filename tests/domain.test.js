@@ -164,3 +164,20 @@ test("GamepadConfig: configuracao de eixo analogico continuo para N64", () => {
   }
 });
 
+test("GamepadConfig: configuracao calibrada para Arcade (fbneo / arcade)", () => {
+  const layout = getVirtualGamepadSettings("fbneo");
+  assert.ok(validateEmulatorJSLayout(layout));
+  const stick = layout.find((i) => i.type === "zone");
+  assert.ok(stick);
+  assert.deepEqual(stick.inputValues, [4, 5, 6, 7]);
+
+  // Insert Coin e Start
+  assert.ok(layout.find((i) => i.id === "select" && i.text === "COIN"));
+  assert.ok(layout.find((i) => i.id === "start" && i.text === "START"));
+
+  // 6 botoes de acao (LP, MP, HP, LK, MK, HK)
+  for (const id of ["x", "y", "l", "a", "b", "r"]) {
+    assert.ok(layout.find((i) => i.id === id), `Botao ${id} ausente no Arcade`);
+  }
+});
+
