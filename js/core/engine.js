@@ -118,11 +118,14 @@ export class EmulatorEngine {
       closeMenu();
     };
 
-    // Substitui métodos de controle do menu
+    // Substitui métodos de controle do menu (ignora auto-open nativo no boot do jogo)
     if (emulator.menu) {
-      emulator.menu.open = openMenu;
+      emulator.menu.open = (forceByUser) => {
+        if (forceByUser !== true) return;
+        openMenu();
+      };
       emulator.menu.close = closeMenu;
-      emulator.menu.toggle = toggleMenu;
+      emulator.menu.toggle = () => toggleMenu();
 
       // Desativa os listeners intrusivos nativos que abriam o menu ao clicar no canvas
       if (emulator.menu.mousemoveListener) {
@@ -132,6 +135,9 @@ export class EmulatorEngine {
       }
       emulator.createBottomMenuBarListeners = () => {};
     }
+
+    // Força fechamento no boot
+    closeMenu();
 
     // Tecla ESC fecha o menu
     window.addEventListener("keydown", (e) => {

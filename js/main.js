@@ -1,8 +1,8 @@
-import { GameService } from "./services/game-service.js?v=17";
-import { EmulatorEngine } from "./core/engine.js?v=17";
-import { SettingsModule } from "./modules/settings.js?v=17";
-import { CatalogModule } from "./modules/catalog.js?v=17";
-import { Router } from "./modules/router.js?v=17";
+import { GameService } from "./services/game-service.js?v=18";
+import { EmulatorEngine } from "./core/engine.js?v=18";
+import { SettingsModule } from "./modules/settings.js?v=18";
+import { CatalogModule } from "./modules/catalog.js?v=18";
+import { Router } from "./modules/router.js?v=18";
 
 class App {
   constructor() {

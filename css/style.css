@@ -855,13 +855,11 @@ main {
   fill: currentColor !important;
 }
 
-/* Dim backdrop for centered menu */
+/* Dim backdrop for centered menu (no heavy blur to preserve full 60fps) */
 #ejs-menu-backdrop {
   position: fixed !important;
   inset: 0 !important;
-  background: rgba(0, 0, 0, 0.65) !important;
-  backdrop-filter: blur(4px) !important;
-  -webkit-backdrop-filter: blur(4px) !important;
+  background: rgba(0, 0, 0, 0.72) !important;
   z-index: 13999999 !important;
   transition: opacity 0.2s ease !important;
 }
@@ -895,9 +893,7 @@ main {
   width: min(390px, 92vw) !important;
   max-height: 84vh !important;
   max-height: 84dvh !important;
-  background: rgba(18, 20, 32, 0.97) !important;
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
+  background: #121420 !important;
   border: 1px solid var(--border) !important;
   border-radius: 20px !important;
   padding: 18px !important;
