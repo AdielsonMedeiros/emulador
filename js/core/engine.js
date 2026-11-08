@@ -1,7 +1,7 @@
-import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=43";
-import { resolveAssetUrl } from "./utils.js?v=43";
-import { getVirtualGamepadSettings, getButtonInputMap } from "./gamepad-config.js?v=43";
-import { AutoFireController, extractButtonId } from "./turbo.js?v=43";
+import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=44";
+import { resolveAssetUrl } from "./utils.js?v=44";
+import { getVirtualGamepadSettings, getButtonInputMap } from "./gamepad-config.js?v=44";
+import { AutoFireController, extractButtonId } from "./turbo.js?v=44";
 
 export function isAllowedInteractionTarget(target) {
   if (!target || typeof target.closest !== "function") return false;
@@ -176,14 +176,7 @@ export class EmulatorEngine {
         window.EJS_webgl = false;
       }
 
-      if (game.core === "mame2003_plus" || game.core === "mame2003") {
-        window.EJS_externalFiles = {
-          "/neogeo.zip": resolveAssetUrl("roms/neogeo.zip"),
-          "/home/web_user/retroarch/userdata/system/neogeo.zip": resolveAssetUrl("roms/neogeo.zip")
-        };
-      } else {
-        delete window.EJS_externalFiles;
-      }
+      delete window.EJS_externalFiles;
 
       window.EJS_alignAudio = false;
       window.EJS_audioWorklet = false;

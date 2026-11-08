@@ -1,9 +1,9 @@
-import { GameService } from "./services/game-service.js?v=43";
-import { EmulatorEngine } from "./core/engine.js?v=43";
-import { CatalogModule } from "./modules/catalog.js?v=43";
-import { Router } from "./modules/router.js?v=43";
-import { resolveAssetUrl } from "./core/utils.js?v=43";
-import { GameMatcher } from "./core/matcher.js?v=43";
+import { GameService } from "./services/game-service.js?v=44";
+import { EmulatorEngine } from "./core/engine.js?v=44";
+import { CatalogModule } from "./modules/catalog.js?v=44";
+import { Router } from "./modules/router.js?v=44";
+import { resolveAssetUrl } from "./core/utils.js?v=44";
+import { GameMatcher } from "./core/matcher.js?v=44";
 
 class App {
   constructor() {
