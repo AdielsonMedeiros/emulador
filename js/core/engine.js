@@ -1,6 +1,6 @@
-import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=39";
-import { resolveAssetUrl } from "./utils.js?v=39";
-import { getVirtualGamepadSettings } from "./gamepad-config.js?v=39";
+import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=40";
+import { resolveAssetUrl } from "./utils.js?v=40";
+import { getVirtualGamepadSettings } from "./gamepad-config.js?v=40";
 
 export function isAllowedInteractionTarget(target) {
   if (!target || typeof target.closest !== "function") return false;
