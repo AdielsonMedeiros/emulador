@@ -40,6 +40,13 @@ export class LifecycleController {
           emu.pause();
         } catch (e) {}
       }
+
+      // Persiste arquivos de save (SRAM) imediatamente caso o SO purgue o processo por memoria
+      if (emu.gameManager && typeof emu.gameManager.saveSaveFiles === "function") {
+        try {
+          emu.gameManager.saveSaveFiles();
+        } catch (e) {}
+      }
     } else if (state === "visible") {
       // Retorno ao primeiro plano
       this.resumeAll(emu);

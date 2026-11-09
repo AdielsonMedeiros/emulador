@@ -1,8 +1,8 @@
-import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=47";
-import { resolveAssetUrl } from "./utils.js?v=47";
-import { getVirtualGamepadSettings, getButtonInputMap } from "./gamepad-config.js?v=47";
-import { AutoFireController, extractButtonId } from "./turbo.js?v=47";
-import { LifecycleController } from "./lifecycle.js?v=47";
+import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=48";
+import { resolveAssetUrl } from "./utils.js?v=48";
+import { getVirtualGamepadSettings, getButtonInputMap } from "./gamepad-config.js?v=48";
+import { AutoFireController, extractButtonId } from "./turbo.js?v=48";
+import { LifecycleController } from "./lifecycle.js?v=48";
 
 export function isAllowedInteractionTarget(target) {
   if (!target || typeof target.closest !== "function") return false;
