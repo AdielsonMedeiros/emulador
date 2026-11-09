@@ -1,8 +1,8 @@
-import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=48";
-import { resolveAssetUrl } from "./utils.js?v=48";
-import { getVirtualGamepadSettings, getButtonInputMap } from "./gamepad-config.js?v=48";
-import { AutoFireController, extractButtonId } from "./turbo.js?v=48";
-import { LifecycleController } from "./lifecycle.js?v=48";
+import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=49";
+import { resolveAssetUrl } from "./utils.js?v=49";
+import { getVirtualGamepadSettings, getButtonInputMap } from "./gamepad-config.js?v=49";
+import { AutoFireController, extractButtonId } from "./turbo.js?v=49";
+import { LifecycleController } from "./lifecycle.js?v=49";
 
 export function isAllowedInteractionTarget(target) {
   if (!target || typeof target.closest !== "function") return false;
@@ -22,6 +22,7 @@ export class EmulatorEngine {
     this.currentGame = null;
     this.onExitCallback = null;
     this.buttonInputMap = new Map();
+    this.pendingRestoreState = null;
 
     this.turboController = new AutoFireController({
       simulateInputFn: (player, inputValue, state) => {
@@ -38,7 +39,10 @@ export class EmulatorEngine {
 
     this.lifecycle = new LifecycleController({
       getEmulator: () => (typeof window !== "undefined" ? window.EJS_emulator : null),
-      resumeAudioFn: () => resumeEmulatorAudio()
+      resumeAudioFn: () => resumeEmulatorAudio(),
+      onRequestRestore: (stateBuffer) => {
+        this.hotRestore(stateBuffer);
+      }
     });
 
     registerAudioUnlockListeners();
@@ -221,6 +225,25 @@ export class EmulatorEngine {
               window.EJS_emulator.menu.close();
             }
             resumeEmulatorAudio();
+
+            if (this.pendingRestoreState) {
+              const stateToApply = this.pendingRestoreState;
+              this.pendingRestoreState = null;
+              setTimeout(() => {
+                try {
+                  if (
+                    window.EJS_emulator &&
+                    window.EJS_emulator.gameManager &&
+                    typeof window.EJS_emulator.gameManager.loadState === "function"
+                  ) {
+                    window.EJS_emulator.gameManager.loadState(stateToApply);
+                    resumeEmulatorAudio();
+                  }
+                } catch (err) {
+                  console.error("Falha ao restaurar save state:", err);
+                }
+              }, 120);
+            }
           });
 
           // Desativa o listener de mousemove da barra de menu no ambiente touch
@@ -326,7 +349,10 @@ export class EmulatorEngine {
           "webglcontextlost",
           (e) => {
             e.preventDefault();
-            console.warn("RetroCart: webglcontextlost interceptado com preventDefault.");
+            console.warn("RetroCart: webglcontextlost interceptado.");
+            if (this.lifecycle) {
+              this.lifecycle.isContextLost = true;
+            }
           },
           false
         );
@@ -334,10 +360,9 @@ export class EmulatorEngine {
         canvas.addEventListener(
           "webglcontextrestored",
           (e) => {
-            console.log("RetroCart: webglcontextrestored disparado. Sincronizando estado...");
-            resumeEmulatorAudio();
-            if (window.EJS_emulator && typeof window.EJS_emulator.handleResize === "function") {
-              window.EJS_emulator.handleResize();
+            console.log("RetroCart: webglcontextrestored disparado. Reativando engine...");
+            if (this.lifecycle) {
+              this.lifecycle.isContextLost = true;
             }
           },
           false
@@ -369,7 +394,15 @@ export class EmulatorEngine {
     }
   }
 
-  stop() {
+  hotRestore(stateBuffer) {
+    if (!this.currentGame) return;
+    this.pendingRestoreState = stateBuffer;
+    const game = this.currentGame;
+    this.stop(true);
+    this.launch(game);
+  }
+
+  stop(keepViewport = false) {
     if (this.lifecycle) {
       this.lifecycle.detach();
     }
@@ -392,21 +425,24 @@ export class EmulatorEngine {
     if (this.targetElement) {
       this.targetElement.innerHTML = "";
     }
-    if (this.viewportElement && this.viewportElement.style) {
-      this.viewportElement.style.display = "none";
-    }
-    this.currentGame = null;
 
-    if (typeof document !== "undefined" && document.fullscreenElement) {
-      try {
-        document.exitFullscreen().catch(() => {});
-      } catch (e) {}
-    }
+    if (!keepViewport) {
+      if (this.viewportElement && this.viewportElement.style) {
+        this.viewportElement.style.display = "none";
+      }
+      this.currentGame = null;
 
-    if (typeof screen !== "undefined" && screen.orientation && screen.orientation.unlock) {
-      try {
-        screen.orientation.unlock();
-      } catch (e) {}
+      if (typeof document !== "undefined" && document.fullscreenElement) {
+        try {
+          document.exitFullscreen().catch(() => {});
+        } catch (e) {}
+      }
+
+      if (typeof screen !== "undefined" && screen.orientation && screen.orientation.unlock) {
+        try {
+          screen.orientation.unlock();
+        } catch (e) {}
+      }
     }
 
     if (typeof window !== "undefined") {
@@ -422,7 +458,7 @@ export class EmulatorEngine {
       this.layoutObserver = null;
     }
 
-    if (typeof this.onExitCallback === "function") {
+    if (!keepViewport && typeof this.onExitCallback === "function") {
       this.onExitCallback();
     }
   }
