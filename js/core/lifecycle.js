@@ -155,3 +155,4 @@ export class LifecycleController {
     this.onFocus = null;
   }
 }
+
