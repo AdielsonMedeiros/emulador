@@ -1,7 +1,7 @@
 /**
  * @fileoverview LifecycleController
  * Gerencia os estados de primeiro/segundo plano (background/foreground) da aplicacao,
- * garantindo retomada deterministica de AudioContext e MainLoop tanto no iOS WebKit quanto no Android Chromium.
+ * garantindo sincronizacao deterministica de AudioContext, MainLoop e WebGL no iOS WebKit e Android Chromium.
  */
 
 export class LifecycleController {
@@ -34,15 +34,10 @@ export class LifecycleController {
     if (!emu) return;
 
     if (state === "hidden") {
-      // Background: pausa o emulador para cessar consumo de CPU/bateria e evitar estouro de buffer
-      if (typeof emu.pause === "function") {
+      // Background: pausa o emulador de forma limpa atraves do emu.pause()
+      if (typeof emu.pause === "function" && !emu.paused) {
         try {
           emu.pause();
-        } catch (e) {}
-      }
-      if (emu.gameManager && typeof emu.gameManager.toggleMainLoop === "function") {
-        try {
-          emu.gameManager.toggleMainLoop(0);
         } catch (e) {}
       }
     } else if (state === "visible") {
@@ -62,13 +57,27 @@ export class LifecycleController {
   }
 
   /**
-   * Destravamento por interacao direta (fallback no touchstart).
+   * Destravamento por interacao direta (executado dentro de contexto de gesto do usuario).
+   * No iOS WebKit, AudioContext.resume() exige confianca de gesto do usuario e e rejeitado em visibilitychange.
    */
   handleInteraction() {
+    try {
+      this.resumeAudio();
+    } catch (e) {}
+
     const emu = this.getEmulator();
     if (!emu) return;
-    if (emu.paused) {
-      this.resumeAll(emu);
+
+    if (emu.paused && typeof emu.play === "function") {
+      try {
+        emu.play();
+      } catch (e) {}
+    }
+
+    if (typeof emu.handleResize === "function") {
+      try {
+        emu.handleResize();
+      } catch (e) {}
     }
   }
 
@@ -81,22 +90,18 @@ export class LifecycleController {
       this.resumeAudio();
     } catch (e) {}
 
-    if (typeof emu.play === "function") {
-      try {
-        emu.play();
-      } catch (e) {}
-    }
+    if (emu) {
+      if (emu.paused && typeof emu.play === "function") {
+        try {
+          emu.play();
+        } catch (e) {}
+      }
 
-    if (emu.gameManager && typeof emu.gameManager.toggleMainLoop === "function") {
-      try {
-        emu.gameManager.toggleMainLoop(1);
-      } catch (e) {}
-    }
-
-    if (emu.Module && typeof emu.Module.resumeMainLoop === "function") {
-      try {
-        emu.Module.resumeMainLoop();
-      } catch (e) {}
+      if (typeof emu.handleResize === "function") {
+        try {
+          emu.handleResize();
+        } catch (e) {}
+      }
     }
   }
 
@@ -155,4 +160,3 @@ export class LifecycleController {
     this.onFocus = null;
   }
 }
-

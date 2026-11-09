@@ -1,8 +1,8 @@
-import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=46";
-import { resolveAssetUrl } from "./utils.js?v=46";
-import { getVirtualGamepadSettings, getButtonInputMap } from "./gamepad-config.js?v=46";
-import { AutoFireController, extractButtonId } from "./turbo.js?v=46";
-import { LifecycleController } from "./lifecycle.js?v=46";
+import { unlockAudioContext, resumeEmulatorAudio, registerAudioUnlockListeners } from "./audio.js?v=47";
+import { resolveAssetUrl } from "./utils.js?v=47";
+import { getVirtualGamepadSettings, getButtonInputMap } from "./gamepad-config.js?v=47";
+import { AutoFireController, extractButtonId } from "./turbo.js?v=47";
+import { LifecycleController } from "./lifecycle.js?v=47";
 
 export function isAllowedInteractionTarget(target) {
   if (!target || typeof target.closest !== "function") return false;
@@ -81,6 +81,10 @@ export class EmulatorEngine {
       );
 
       const handleTouchEnd = (e) => {
+        if (this.lifecycle) {
+          this.lifecycle.handleInteraction();
+        }
+
         const touches = e.changedTouches || [e];
         for (let i = 0; i < touches.length; i++) {
           const touch = touches[i];
@@ -314,8 +318,38 @@ export class EmulatorEngine {
         }
       };
 
+      const attachCanvasWebGLGuards = (canvas) => {
+        if (!canvas || canvas._webglGuardsAttached) return;
+        canvas._webglGuardsAttached = true;
+
+        canvas.addEventListener(
+          "webglcontextlost",
+          (e) => {
+            e.preventDefault();
+            console.warn("RetroCart: webglcontextlost interceptado com preventDefault.");
+          },
+          false
+        );
+
+        canvas.addEventListener(
+          "webglcontextrestored",
+          (e) => {
+            console.log("RetroCart: webglcontextrestored disparado. Sincronizando estado...");
+            resumeEmulatorAudio();
+            if (window.EJS_emulator && typeof window.EJS_emulator.handleResize === "function") {
+              window.EJS_emulator.handleResize();
+            }
+          },
+          false
+        );
+      };
+
       this.layoutObserver = new MutationObserver(() => {
         enforceLayout();
+        const canvas = this.targetElement.querySelector("canvas");
+        if (canvas) {
+          attachCanvasWebGLGuards(canvas);
+        }
       });
       this.layoutObserver.observe(this.targetElement, { childList: true, subtree: true });
 

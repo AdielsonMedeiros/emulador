@@ -6,7 +6,7 @@ export function unlockAudioContext() {
   } catch (e) {}
 
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const AudioCtx = typeof window !== "undefined" && (window.AudioContext || window.webkitAudioContext);
     if (AudioCtx) {
       if (!window._retroAudioCtx) {
         window._retroAudioCtx = new AudioCtx();
@@ -43,13 +43,14 @@ export function resumeEmulatorAudio() {
         if (ctx && ctx.state === "suspended") {
           ctx.resume().catch(() => {});
         }
-        if (Array.isArray(al.sources)) {
-          al.sources.forEach((s) => {
+        if (al.sources) {
+          const sources = Array.isArray(al.sources) ? al.sources : Object.values(al.sources);
+          for (const s of sources) {
             const c = s?.gain?.context;
             if (c && c.state === "suspended") {
               c.resume().catch(() => {});
             }
-          });
+          }
         }
       }
       if (emu.Module?.SDL2?.audioContext && emu.Module.SDL2.audioContext.state === "suspended") {
@@ -67,7 +68,12 @@ export function registerAudioUnlockListeners() {
     unlockAudioContext();
   };
 
-  window.addEventListener("touchstart", unlock, { passive: true });
-  window.addEventListener("touchend", unlock, { passive: true });
-  window.addEventListener("click", unlock, { passive: true });
+  // capture: true garante execucao prioritaria no primeiro gesto do usuario antes de event.stopPropagation()
+  window.addEventListener("touchstart", unlock, { passive: true, capture: true });
+  window.addEventListener("touchend", unlock, { passive: true, capture: true });
+  window.addEventListener("click", unlock, { passive: true, capture: true });
+  if (typeof document !== "undefined") {
+    document.addEventListener("touchstart", unlock, { passive: true, capture: true });
+    document.addEventListener("touchend", unlock, { passive: true, capture: true });
+  }
 }

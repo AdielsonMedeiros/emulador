@@ -8,8 +8,7 @@ function createMockEmulator() {
     paused: false,
     playCalled: 0,
     pauseCalled: 0,
-    toggleCalled: [],
-    resumeMainLoopCalled: 0,
+    handleResizeCalled: 0,
     play() {
       this.paused = false;
       this.playCalled++;
@@ -18,23 +17,14 @@ function createMockEmulator() {
       this.paused = true;
       this.pauseCalled++;
     },
-    gameManager: {
-      toggleMainLoop(val) {
-        this.parent.toggleCalled.push(val);
-      }
-    },
-    Module: {
-      resumeMainLoop() {
-        this.parent.resumeMainLoopCalled++;
-      }
+    handleResize() {
+      this.handleResizeCalled++;
     }
   };
 }
 
 test("LifecycleController: pausa emulador quando aba fica oculta (hidden)", () => {
   const emu = createMockEmulator();
-  emu.gameManager.parent = emu;
-  emu.Module.parent = emu;
 
   let resumedAudioCount = 0;
   const ctrl = new LifecycleController({
@@ -45,15 +35,12 @@ test("LifecycleController: pausa emulador quando aba fica oculta (hidden)", () =
   ctrl.handleVisibilityChange("hidden");
 
   assert.equal(emu.pauseCalled, 1, "Deve chamar pause() ao ocultar");
-  assert.deepEqual(emu.toggleCalled, [0], "Deve pausar o main loop no gameManager");
   assert.equal(resumedAudioCount, 0, "Nao deve retomar audio em hidden");
 });
 
-test("LifecycleController: retoma audio e main loop quando aba fica visivel (visible)", () => {
+test("LifecycleController: retoma audio e execucao quando aba fica visivel (visible)", () => {
   const emu = createMockEmulator();
   emu.paused = true;
-  emu.gameManager.parent = emu;
-  emu.Module.parent = emu;
 
   let resumedAudioCount = 0;
   const ctrl = new LifecycleController({
@@ -65,15 +52,12 @@ test("LifecycleController: retoma audio e main loop quando aba fica visivel (vis
 
   assert.equal(resumedAudioCount, 1, "Deve invocar retomada de audio");
   assert.equal(emu.playCalled, 1, "Deve chamar play() ao retornar");
-  assert.deepEqual(emu.toggleCalled, [1], "Deve ativar main loop com flag 1");
-  assert.equal(emu.resumeMainLoopCalled, 1, "Deve invocar resumeMainLoop no Module");
+  assert.equal(emu.handleResizeCalled, 1, "Deve chamar handleResize()");
 });
 
 test("LifecycleController: eventos pageshow e focus restauram execucao", () => {
   const emu = createMockEmulator();
   emu.paused = true;
-  emu.gameManager.parent = emu;
-  emu.Module.parent = emu;
 
   let resumedAudioCount = 0;
   const ctrl = new LifecycleController({
@@ -85,16 +69,15 @@ test("LifecycleController: eventos pageshow e focus restauram execucao", () => {
   assert.equal(resumedAudioCount, 1);
   assert.equal(emu.playCalled, 1);
 
+  emu.paused = true;
   ctrl.handleForegroundEvent("focus");
   assert.equal(resumedAudioCount, 2);
   assert.equal(emu.playCalled, 2);
 });
 
-test("LifecycleController: toque na tela (handleInteraction) destrava se emulador estiver pausado", () => {
+test("LifecycleController: toque na tela (handleInteraction) destrava audio incondicionalmente e emulador se pausado", () => {
   const emu = createMockEmulator();
-  emu.paused = true;
-  emu.gameManager.parent = emu;
-  emu.Module.parent = emu;
+  emu.paused = false; // Simula estado onde visibilitychange ja colocou paused=false mas audioContext permanece suspended
 
   let resumedAudioCount = 0;
   const ctrl = new LifecycleController({
@@ -103,8 +86,15 @@ test("LifecycleController: toque na tela (handleInteraction) destrava se emulado
   });
 
   ctrl.handleInteraction();
-  assert.equal(resumedAudioCount, 1);
-  assert.equal(emu.playCalled, 1);
+  assert.equal(resumedAudioCount, 1, "Deve chamar resumeAudio incondicionalmente no toque");
+  assert.equal(emu.playCalled, 0, "Nao precisa chamar play se nao estava pausado");
+  assert.equal(emu.handleResizeCalled, 1, "Deve ajustar layout");
+
+  // Agora se estiver pausado
+  emu.paused = true;
+  ctrl.handleInteraction();
+  assert.equal(resumedAudioCount, 2);
+  assert.equal(emu.playCalled, 1, "Deve chamar play se estava pausado");
 });
 
 test("LifecycleController: attach e detach gerenciam listeners do window e document", () => {
@@ -123,8 +113,6 @@ test("LifecycleController: attach e detach gerenciam listeners do window e docum
   };
 
   const emu = createMockEmulator();
-  emu.gameManager.parent = emu;
-  emu.Module.parent = emu;
 
   const ctrl = new LifecycleController({
     getEmulator: () => emu,
